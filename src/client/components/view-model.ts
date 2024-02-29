@@ -1,6 +1,7 @@
 import type { OnStart, OnRender } from "@flamework/core";
 import { Component, type Components } from "@flamework/components";
 import { Workspace as World } from "@rbxts/services";
+import { Janitor } from "@rbxts/janitor";
 
 import { Assets } from "shared/utilities/helpers";
 
@@ -10,6 +11,8 @@ import type { FpsController } from "client/controllers/fps";
 
 @Component({ tag: "ViewModel" })
 export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements OnStart, OnRender {
+  private readonly janitor = new Janitor;
+
   public constructor(
     private readonly components: Components,
     fps: FpsController
@@ -35,6 +38,10 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
     const gun = Assets.Guns[gunName].Clone();
     gun.PivotTo(this.instance.GetPivot());
     gun.Parent = this.instance;
-    return this.components.addComponent<Gun>(gun);
+    return this.janitor.Add(this.components.addComponent<Gun>(gun), "destroy");
+  }
+
+  public destroy(): void {
+    this.janitor.Destroy();
   }
 }

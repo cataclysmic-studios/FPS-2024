@@ -17,7 +17,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   };
 
   public constructor(
-    private readonly fps: FpsController
+    protected readonly fps: FpsController
   ) { super(); }
 
   public startProceduralAnimations(): void {

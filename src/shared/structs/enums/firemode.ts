@@ -1,8 +1,8 @@
 enum Firemode {
-  Auto,
-  Semi,
-  Burst,
-  Bolt
+  Auto = "Auto",
+  Semi = "Semi",
+  Burst = "Burst",
+  Bolt = "Bolt"
 }
 
 export default Firemode;

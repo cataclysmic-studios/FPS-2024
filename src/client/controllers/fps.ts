@@ -6,6 +6,7 @@ import { DEFAULT_FPS_STATE, type FpsState } from "shared/structs/fps-state";
 import Slot from "shared/structs/enums/slot";
 
 import type { ViewModel } from "client/components/view-model";
+import type { Gun } from "client/components/gun";
 
 interface CharacterCreationOptions {
   readonly arms: ArmsName;
@@ -27,23 +28,25 @@ export class FpsController implements OnInit {
   }
 
   public cleanupCharacter(): void {
-
+    this.vm?.destroy();
   }
 
   public createCharacter(options: CharacterCreationOptions): void {
-    const arms = this.createArms(options.arms);
+    const arms = Assets.Character.Arms[options.arms].Clone();
     this.vm = this.components.addComponent<ViewModel>(arms);
-  }
-
-  public createArms(name: ArmsName): ArmsModel {
-    return Assets.Character.Arms[name].Clone();
   }
 
   public equipGun(slot: Slot.Primary | Slot.Secondary): void {
     const gunName = this.state.guns[slot === Slot.Primary ? 0 : 1];
     if (!this.vm) return;
     if (!gunName) return;
-    this.vm.addGun(gunName);
+
+    const gun = this.vm.addGun(gunName);
+    this.loadGun(slot, gun);
+  }
+
+  public loadGun(slot: Slot.Primary | Slot.Secondary, gun: Gun): void {
+    this.state.weaponData[slot === Slot.Primary ? 0 : 1] = gun.getData();
   }
 
   public setGun(slot: Slot.Primary | Slot.Secondary, gunName: ExtractKeys<typeof Assets.Guns, GunModel>): void {

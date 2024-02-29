@@ -1,9 +1,10 @@
 import Firemode from "./enums/firemode";
 import Slot from "./enums/slot";
+import GunData from "./gun-data";
 
 export type LeanState = -1 | 0 | 1;
-export type RecoilPattern = [[number, number], [number, number], [number, number]];
 type GunsInventory = [Maybe<GunName>, Maybe<GunName>];
+type WeaponData = [Maybe<GunData>, Maybe<GunData>, Maybe<unknown>];
 
 export interface FpsState {
   equipped: boolean;
@@ -17,14 +18,15 @@ export interface FpsState {
   leanState: LeanState;
 
   currentSlot?: Slot;
-  guns: GunsInventory;
   melee?: MeleeName;
-  gun: {
+  readonly guns: GunsInventory;
+  readonly weaponData: WeaponData;
+  readonly gun: {
     firemode: Firemode,
     ammo: {
       mag: number;
-      reserve: number;
-    }
+      spare: number;
+    };
   };
 }
 
@@ -40,13 +42,14 @@ export const DEFAULT_FPS_STATE = {
   leanState: <LeanState>0,
 
   currentSlot: undefined,
-  guns: <GunsInventory>[undefined, undefined],
   knife: undefined,
+  guns: <GunsInventory>[undefined, undefined],
+  weaponData: <WeaponData>[undefined, undefined, undefined],
   gun: {
     firemode: Firemode.Auto,
     ammo: {
       mag: 0,
-      reserve: 0
+      spare: 0
     }
   }
 };
