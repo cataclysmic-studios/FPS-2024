@@ -25,6 +25,9 @@ export class FpsController implements OnInit {
     this.createCharacter({
       arms: "Standard"
     });
+
+    this.setGun(Slot.Primary, "HK433");
+    this.equipGun(Slot.Primary);
   }
 
   public cleanupCharacter(): void {
@@ -37,41 +40,25 @@ export class FpsController implements OnInit {
   }
 
   public equipGun(slot: Slot.Primary | Slot.Secondary): void {
-    const gunName = this.state.guns[slot === Slot.Primary ? 0 : 1];
+    const gunName = this.state.guns[slot];
     if (!this.vm) return;
     if (!gunName) return;
 
     const gun = this.vm.addGun(gunName);
     this.loadGun(slot, gun);
-  }
 
-  public loadGun(slot: Slot.Primary | Slot.Secondary, gun: Gun): void {
-    this.state.weaponData[slot === Slot.Primary ? 0 : 1] = gun.getData();
+    // play animation
   }
 
   public setGun(slot: Slot.Primary | Slot.Secondary, gunName: ExtractKeys<typeof Assets.Guns, GunModel>): void {
-    this.state.guns[slot === Slot.Primary ? 0 : 1] = gunName;
+    this.state.guns[slot] = gunName;
   }
 
   public setMelee(meleeName: ExtractKeys<typeof Assets.Melees, MeleeModel>): void {
     this.state.melee = meleeName;
   }
 
-  public setSlot(slot: Slot): void {
-    this.state.currentSlot = slot;
-    switch(slot) {
-      case Slot.Primary: {
-        // Load gun @ slot 1
-        break;
-      }
-      case Slot.Secondary: {
-        // Load gun @ slot 2
-        break;
-      }
-      case Slot.Melee: {
-        // Load melee
-        break;
-      }
-    }
+  private loadGun(slot: Slot.Primary | Slot.Secondary, gun: Gun): void {
+    this.state.weaponData[slot] = gun.getData();
   }
 }

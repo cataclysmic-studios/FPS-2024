@@ -1,7 +1,7 @@
 enum Slot {
-  Primary,
-  Secondary,
-  Melee
+  Primary = 0,
+  Secondary = 1,
+  Melee = 2
 }
 
 export default Slot;

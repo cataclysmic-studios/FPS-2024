@@ -36,7 +36,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     const cameraOffsets: CFrame[] = [];
     {
       const movement = this.animations.breathing.update(dt);
-      cameraOffsets.push(new CFrame(0, movement.Y, 0));
+      cameraOffsets.push(new CFrame(0, movement.Y * 2, 0));
     }
     {
       const movement = this.animations.walkCycle.update(dt, this.fps.state);
@@ -63,8 +63,11 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       );
     }
     {
-      const movement = this.animations.landing.update(dt).div(16);
-      modelOffsets.push(new CFrame(0, movement.Y, 0));
+      const movement = this.animations.landing.update(dt).div(20);
+      modelOffsets.push(
+        new CFrame(0, movement.Y, 0)
+          .mul(CFrame.Angles(movement.Y / 2, 0, 0))
+      );
     }
 
     return modelOffsets.reduce((sum, offset) => sum.mul(offset), new CFrame);

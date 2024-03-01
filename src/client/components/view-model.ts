@@ -11,7 +11,10 @@ import type { FpsController } from "client/controllers/fps";
 
 @Component({ tag: "ViewModel" })
 export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements OnStart, OnRender {
+  public readonly weaponAttachment = new Instance("Attachment", this.instance.Mesh.chest["arm.R"]["elbow.R"]["forearm.R"]["hand.R"]);
+
   private readonly janitor = new Janitor;
+  private currentGun?: Gun;
 
   public constructor(
     private readonly components: Components,
@@ -28,10 +31,12 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
 
     const camera = <Camera>this.instance.Parent;
     const animationOffset = this.updateProceduralAnimations(dt);
-    this.instance.PivotTo(
-      camera.CFrame
-        .mul(animationOffset)
-    );
+    const gunOffset = this.currentGun?.instance.Offsets.Main.Value ?? new CFrame;
+    const baseOffset = new CFrame(0, -0.75, -1.75);
+    this.instance.Mesh.CFrame = camera.CFrame
+      .mul(baseOffset)
+      .mul(gunOffset)
+      .mul(animationOffset);
   }
 
   public addGun(gunName: GunName): Gun {

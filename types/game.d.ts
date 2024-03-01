@@ -3,7 +3,7 @@ type GunName = ExtractKeys<ReplicatedFirst["Assets"]["Guns"], GunModel>;
 type MeleeName = ExtractKeys<ReplicatedFirst["Assets"]["Melees"], MeleeModel>;
 
 interface ArmsModel extends Model {
-  Mesh: & {
+  Mesh: MeshPart & {
     chest: Bone & {
       ["arm.L"]: Bone & {
         ["elbow.L"]: Bone & {
@@ -36,11 +36,17 @@ interface MeleeModel extends Model {
 interface GunOffsetsFolder extends Folder {
   Main: CFrameValue;
   Aim: CFrameValue;
+  Gun: CFrameValue;
+}
+
+interface GunAnimationsFolder extends Folder {
+  Idle: Animation;
 }
 
 interface GunModel extends Model {
   Data: ModuleScript;
   Offsets: GunOffsetsFolder;
+  Animations: GunAnimationsFolder;
   Bolt: BasePart;
   Mag: BasePart;
   Handle: BasePart;
