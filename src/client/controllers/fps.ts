@@ -1,6 +1,6 @@
 import { Controller, type OnInit } from "@flamework/core";
 import type { Components } from "@flamework/components";
-import { Workspace as World } from "@rbxts/services";
+import { Workspace as World, UserInputService } from "@rbxts/services";
 import { TweenInfoBuilder } from "@rbxts/builders";
 
 import { Player } from "shared/utilities/client";
@@ -78,6 +78,9 @@ export class FpsController implements OnInit {
     AIM_TWEEN_INFO.SetTime(0.2 / gunData.speed.aim);
 
     this.adjustCharacterSpeed();
+    tween(UserInputService, AIM_TWEEN_INFO, { // TODO: add setting in future to modify this aim sensitivity
+      MouseDeltaSensitivity: 1 / (aimed ? gunData.zoom : 1)
+    });
     tween(this.characterCamera.instance, AIM_TWEEN_INFO, {
       FieldOfView: FOV.Base / (aimed ? gunData.zoom : 1)
     });
