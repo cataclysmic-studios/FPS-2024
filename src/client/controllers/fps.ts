@@ -16,7 +16,7 @@ import type { CharacterController } from "./character";
 import type { ViewModel } from "client/components/view-model";
 import type { Gun } from "client/components/gun";
 import type { CharacterCamera } from "client/components/cameras/character-camera";
-import type { ProceduralAnimations } from "client/components/procedural-animations";
+import type { ProceduralAnimations } from "client/base-components/procedural-animations";
 import Log from "shared/logger";
 
 const enum CFrameManipulationType {

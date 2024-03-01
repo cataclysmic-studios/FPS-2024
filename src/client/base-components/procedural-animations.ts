@@ -3,6 +3,7 @@ import Object from "@rbxts/object-utils";
 
 import BreathingAnimation from "client/classes/procedural-animations/breathing";
 import WalkCycleAnimation from "client/classes/procedural-animations/walk-cycle";
+import MouseSwayAnimation from "client/classes/procedural-animations/mouse-sway";
 import LandingAnimation from "client/classes/procedural-animations/landing";
 
 import type { FpsController } from "client/controllers/fps";
@@ -16,6 +17,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   private readonly animations = {
     breathing: new BreathingAnimation,
     walkCycle: new WalkCycleAnimation,
+    mouseSway: new MouseSwayAnimation,
     landing: new LandingAnimation
   };
 
@@ -64,11 +66,20 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   private getModelOffset(dt: number): CFrame {
     const modelOffsets: CFrame[] = [];
     {
-      const movement = this.animations.walkCycle.update(dt, this.fps);
+      const movement = this.animations.walkCycle.update(dt, this.fps).mul(-2);
       modelOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
       );
+    }
+    {
+      const sway = this.animations.mouseSway.update(dt, this.fps);
+      const aimSway = new CFrame(-sway.X, sway.Y, -sway.X)
+        .mul(CFrame.Angles(-sway.Y, -sway.X, sway.X));
+      const hipSway = new CFrame(-sway.X * 1.75, sway.Y / 1.5, -sway.X * 1.5)
+        .mul(CFrame.Angles(-sway.Y / 1.5, -sway.X, 0));
+
+      modelOffsets.push(this.fps.state.aimed ? aimSway : hipSway);
     }
     {
       const movement = this.animations.landing.update(dt, this.fps).div(32);

@@ -6,7 +6,7 @@ import { Janitor } from "@rbxts/janitor";
 import { Assets } from "shared/utilities/helpers";
 
 import { Character } from "shared/utilities/client";
-import { ProceduralAnimations } from "./procedural-animations";
+import { ProceduralAnimations } from "../base-components/procedural-animations";
 import type { Gun } from "./gun";
 import type { FpsController } from "client/controllers/fps";
 

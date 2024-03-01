@@ -4,7 +4,7 @@ import { Component } from "@flamework/components";
 import { Character, Player } from "shared/utilities/client";
 import Log from "shared/logger";
 
-import { ProceduralAnimations } from "../procedural-animations";
+import { ProceduralAnimations } from "../../base-components/procedural-animations";
 import type { FpsController } from "client/controllers/fps";
 
 @Component({ tag: "CharacterCamera" })
