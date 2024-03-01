@@ -17,6 +17,7 @@ import type { ViewModel } from "client/components/view-model";
 import type { Gun } from "client/components/gun";
 import type { CharacterCamera } from "client/components/cameras/character-camera";
 import type { ProceduralAnimations } from "client/components/procedural-animations";
+import Log from "shared/logger";
 
 const enum CFrameManipulationType {
   Camera,
@@ -38,9 +39,9 @@ const DEFAULT_CHARACTER: CharacterCreationOptions = {
 @Controller()
 export class FpsController implements OnInit {
   public readonly state: FpsState = DEFAULT_FPS_STATE;
+  public vm?: ViewModel;
+  public characterCamera?: CharacterCamera;
 
-  private characterCamera?: CharacterCamera;
-  private vm?: ViewModel;
   private mouseDown = false;
 
   public constructor(
@@ -55,7 +56,7 @@ export class FpsController implements OnInit {
     const mouse = Player.GetMouse();
     mouse.Button1Down.Connect(() => this.mouseDown = true);
     mouse.Button1Up.Connect(() => this.mouseDown = false);
-    this.deploy();
+    task.delay(1.5, () => this.deploy());
   }
 
   private deploy(): void {
@@ -109,6 +110,7 @@ export class FpsController implements OnInit {
     const gunName = this.state.guns[slot];
     if (!this.vm) return;
     if (!gunName) return;
+    Log.info("Equipped " + gunName);
     this.state.currentSlot = slot;
 
     const gun = this.vm.addGun(gunName);

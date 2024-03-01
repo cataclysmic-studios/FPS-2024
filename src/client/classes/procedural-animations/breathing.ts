@@ -9,6 +9,6 @@ export default class BreathingAnimation implements ProceduralAnimation {
   public start(): void {}
 
   public update(dt: number, { state: { aimed } }: FpsController): Vector3 {
-    return new Vector3(0, this.wave.update(dt) / (aimed ? 2 : 1), 0);
+    return new Vector3(0, this.wave.update(dt) / (aimed ? 5 : 1), 0);
   }
 }

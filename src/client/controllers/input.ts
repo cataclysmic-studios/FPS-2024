@@ -17,6 +17,8 @@ export class InputController implements OnInit {
   ) {}
 
   public onInit(): void {
+    UserInputService.MouseIconEnabled = false;
+
     const mouse = Player.GetMouse();
     mouse.Button1Down.Connect(() => this.fps.shoot());
     mouse.Button2Down.Connect(() => this.fps.aim(true));
@@ -46,6 +48,9 @@ export class InputController implements OnInit {
             return this.movement.stand();
           else
             return this.movement.prone();
+
+        case Key.P:
+          return UserInputService.MouseIconEnabled = !UserInputService.MouseIconEnabled;
       }
     });
     UserInputService.InputEnded.Connect(({ KeyCode: key }, processed) => {

@@ -45,6 +45,9 @@ export class MovementController {
   }
 
   public sprint(): void {
+    if (this.fps.state.aimed)
+      this.fps.aim(false);
+
     this.fps.state.sprinting = true;
     this.fps.state.proned = false;
     this.fps.state.crouched = false;
