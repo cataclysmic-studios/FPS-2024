@@ -10,6 +10,9 @@ import type { FpsController } from "client/controllers/fps";
 const { rad } = math;
 
 export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Model> extends BaseComponent<A, I> {
+  public readonly cframeManipulators = {
+    aim: new Instance("CFrameValue")
+  };
   private readonly animations = {
     breathing: new BreathingAnimation,
     walkCycle: new WalkCycleAnimation,
@@ -26,28 +29,33 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   }
 
   public updateProceduralAnimations(dt: number): CFrame {
-    if (this.instance.IsA("Camera"))
-      return this.getCameraOffset(dt);
-    else
-      return this.getModelOffset(dt);
+    const offset = this.instance.IsA("Camera") ? this.getCameraOffset(dt) : this.getModelOffset(dt);
+    const finalManipulatorOffset = Object.values(this.cframeManipulators)
+      .map(manipulator => manipulator.Value)
+      .reduce((sum, offset) => sum.mul(offset), new CFrame);
+
+    return offset.mul(finalManipulatorOffset);
   }
 
   private getCameraOffset(dt: number): CFrame {
     const cameraOffsets: CFrame[] = [];
     {
-      const movement = this.animations.breathing.update(dt);
+      const movement = this.animations.breathing.update(dt, this.fps);
       cameraOffsets.push(new CFrame(0, movement.Y * 2, 0));
     }
     {
-      const movement = this.animations.walkCycle.update(dt, this.fps.state);
+      const movement = this.animations.walkCycle.update(dt, this.fps);
       cameraOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
       );
     }
     {
-      const movement = this.animations.landing.update(dt).div(6);
-      cameraOffsets.push(CFrame.Angles(rad(movement.Y), 0, 0));
+      const movement = this.animations.landing.update(dt, this.fps, true).div(8);
+      cameraOffsets.push(
+        new CFrame(0, movement.Y / 8, 0)
+          .mul(CFrame.Angles(rad(movement.Y), 0, 0))
+      );
     }
 
     return cameraOffsets.reduce((sum, offset) => sum.mul(offset), new CFrame);
@@ -56,14 +64,14 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   private getModelOffset(dt: number): CFrame {
     const modelOffsets: CFrame[] = [];
     {
-      const movement = this.animations.walkCycle.update(dt, this.fps.state);
+      const movement = this.animations.walkCycle.update(dt, this.fps);
       modelOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
       );
     }
     {
-      const movement = this.animations.landing.update(dt).div(20);
+      const movement = this.animations.landing.update(dt, this.fps).div(32);
       modelOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y / 2, 0, 0))

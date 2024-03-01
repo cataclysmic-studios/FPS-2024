@@ -8,6 +8,8 @@ interface ReplicatedFirst extends Instance {
     Guns: Folder & {
       HK433: GunModel;
     };
-    Melees: Folder;
+    Melees: Folder & {
+      Knife: MeleeModel;
+    };
   };
 }

@@ -1,10 +1,11 @@
 import Firemode from "./enums/firemode";
-import Slot from "./enums/slot";
-import GunData from "./gun-data";
+import type Slot from "./enums/slot";
+import type GunData from "./gun-data";
+import type MeleeData from "./melee-data";
 
 export type LeanState = -1 | 0 | 1;
 type GunsInventory = [Maybe<GunName>, Maybe<GunName>];
-type WeaponData = [Maybe<GunData>, Maybe<GunData>, Maybe<unknown>];
+type WeaponData = [Maybe<GunData>, Maybe<GunData>, Maybe<MeleeData>];
 
 export interface FpsState {
   equipped: boolean;

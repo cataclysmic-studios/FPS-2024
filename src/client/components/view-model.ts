@@ -12,9 +12,10 @@ import type { FpsController } from "client/controllers/fps";
 
 @Component({ tag: "ViewModel" })
 export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements OnStart, OnRender {
+  public currentGun?: Gun;
+
   private readonly janitor = new Janitor;
   private readonly gunMotor = new Instance("Motor6D");
-  private currentGun?: Gun;
 
   public constructor(
     private readonly components: Components,
@@ -27,6 +28,7 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
     this.gunMotor.Part0 = this.instance.Mesh;
 
     this.startProceduralAnimations();
+    this.janitor.Add(this.instance);
   }
 
   public onRender(dt: number): void {
@@ -58,11 +60,12 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
     gun.PivotTo(this.instance.GetPivot());
     gun.Parent = this.instance;
 
-    this.gunMotor.C0 = gun.Offsets.Gun.Value
+    this.currentGun = this.janitor.Add(this.components.addComponent<Gun>(gun), "destroy");
+    this.currentGun.janitor.Add(gun.Offsets.Gun.GetPropertyChangedSignal("Value").Connect(() => this.gunMotor.C0 = gun.Offsets.Gun.Value));
+    this.gunMotor.C0 = gun.Offsets.Gun.Value;
     this.gunMotor.Part1 = gun.Handle;
     this.gunMotor.Parent = this.instance.Mesh;
 
-    this.currentGun = this.janitor.Add(this.components.addComponent<Gun>(gun), "destroy");
     return this.currentGun;
   }
 

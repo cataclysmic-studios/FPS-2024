@@ -13,4 +13,12 @@ export default interface GunData {
   };
 
   movingParts: string[];
+
+  zoom: number;
+  speed: {
+    aim: number;
+    equip: number;
+    walk: number;
+    sprint: number;
+  };
 }

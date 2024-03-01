@@ -20,7 +20,7 @@ export class CharacterCamera extends ProceduralAnimations<{}, Camera> implements
   }
 
   public onRender(dt: number): void {
-    if (!Character) return;
+    if (!Character.PrimaryPart) return;
 
     const animationOffset = this.updateProceduralAnimations(dt);
     this.instance.CFrame = this.instance.CFrame

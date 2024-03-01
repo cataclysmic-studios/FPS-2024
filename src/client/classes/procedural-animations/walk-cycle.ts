@@ -2,7 +2,7 @@ import { Character } from "shared/utilities/client";
 import { Spring } from "shared/utilities/classes/spring";
 import Wave from "shared/utilities/classes/wave";
 
-import type { FpsState } from "shared/structs/fps-state";
+import type { FpsController } from "client/controllers/fps";
 import type ProceduralAnimation from "../procedural-animation";
 
 const WAVE_PARAMETERS = <const>[1, 12, -0.5, 0];
@@ -18,7 +18,7 @@ export default class WalkCycleAnimation implements ProceduralAnimation {
     this.cosineWave.waveFunction = math.cos;
   }
 
-  public update(dt: number, { aimed }: FpsState): Vector3 {
+  public update(dt: number, { state: { aimed } }: FpsController): Vector3 {
     const epsilon = 0.025;
     const velocity = Character.PrimaryPart!.AssemblyLinearVelocity;
     const walkSpeed = math.max(velocity.sub(new Vector3(0, velocity.Y, 0)).Magnitude - epsilon, 0);

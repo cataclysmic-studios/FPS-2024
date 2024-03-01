@@ -1,12 +1,16 @@
 import type { OnStart } from "@flamework/core";
 import { Component, BaseComponent } from "@flamework/components";
+import { Janitor } from "@rbxts/janitor";
 
 import type GunData from "shared/structs/gun-data";
 
 @Component({ tag: "Gun" })
 export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
+  public readonly janitor = new Janitor;
+
   public onStart(): void {
     this.weld();
+    this.janitor.Add(this.instance);
   }
 
   public getAnimation(name: AnimationName): Animation {
@@ -31,5 +35,9 @@ export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
       weld.C1 = weld.Part1.CFrame.ToObjectSpace(weld.Part0.CFrame);
       weld.Parent = this.instance.Handle;
     }
+  }
+
+  public destroy(): void {
+    this.janitor.Destroy();
   }
 }
