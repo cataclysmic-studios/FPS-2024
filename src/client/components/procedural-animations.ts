@@ -32,7 +32,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       return this.getModelOffset(dt);
   }
 
-  private getCameraOffset(dt: number) {
+  private getCameraOffset(dt: number): CFrame {
     const cameraOffsets: CFrame[] = [];
     {
       const movement = this.animations.breathing.update(dt);
@@ -53,7 +53,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     return cameraOffsets.reduce((sum, offset) => sum.mul(offset), new CFrame);
   }
 
-  private getModelOffset(dt: number) {
+  private getModelOffset(dt: number): CFrame {
     const modelOffsets: CFrame[] = [];
     {
       const movement = this.animations.walkCycle.update(dt, this.fps.state);

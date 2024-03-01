@@ -5,15 +5,15 @@ import { Janitor } from "@rbxts/janitor";
 
 import { Assets } from "shared/utilities/helpers";
 
+import { Character } from "shared/utilities/client";
 import { ProceduralAnimations } from "./procedural-animations";
 import type { Gun } from "./gun";
 import type { FpsController } from "client/controllers/fps";
 
 @Component({ tag: "ViewModel" })
 export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements OnStart, OnRender {
-  public readonly weaponAttachment = new Instance("Attachment", this.instance.Mesh.chest["arm.R"]["elbow.R"]["forearm.R"]["hand.R"]);
-
   private readonly janitor = new Janitor;
+  private readonly gunMotor = new Instance("Motor6D");
   private currentGun?: Gun;
 
   public constructor(
@@ -23,11 +23,15 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
 
   public onStart(): void {
     this.instance.Parent = <Camera>World.WaitForChild("CharacterCamera");
+    this.gunMotor.Name = "Gun";
+    this.gunMotor.Part0 = this.instance.Mesh;
+
     this.startProceduralAnimations();
   }
 
   public onRender(dt: number): void {
     if (!this.instance.Parent) return;
+    if (!Character.PrimaryPart) return;
 
     const camera = <Camera>this.instance.Parent;
     const animationOffset = this.updateProceduralAnimations(dt);
@@ -39,11 +43,33 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
       .mul(animationOffset);
   }
 
+  public playAnimation(name: AnimationName): Maybe<AnimationTrack> {
+    if (!this.currentGun) return;
+
+    const animation = this.currentGun.getAnimation(name);
+    const track = this.instance.AnimationController.LoadAnimation(animation);
+    track.Play();
+
+    return track;
+  }
+
   public addGun(gunName: GunName): Gun {
     const gun = Assets.Guns[gunName].Clone();
     gun.PivotTo(this.instance.GetPivot());
     gun.Parent = this.instance;
-    return this.janitor.Add(this.components.addComponent<Gun>(gun), "destroy");
+
+    this.gunMotor.C0 = gun.Offsets.Gun.Value
+    this.gunMotor.Part1 = gun.Handle;
+    this.gunMotor.Parent = this.instance.Mesh;
+
+    this.currentGun = this.janitor.Add(this.components.addComponent<Gun>(gun), "destroy");
+    return this.currentGun;
+  }
+
+  public removeGun(): void {
+    this.gunMotor.Parent = undefined;
+    this.currentGun?.destroy();
+    this.currentGun = undefined;
   }
 
   public destroy(): void {

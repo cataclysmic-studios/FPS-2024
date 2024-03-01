@@ -28,6 +28,7 @@ export class FpsController implements OnInit {
 
     this.setGun(Slot.Primary, "HK433");
     this.equipGun(Slot.Primary);
+    task.delay(3, () => this.vm?.playAnimation("Idle"));
   }
 
   public cleanupCharacter(): void {
@@ -46,8 +47,7 @@ export class FpsController implements OnInit {
 
     const gun = this.vm.addGun(gunName);
     this.loadGun(slot, gun);
-
-    // play animation
+    // this.vm.playAnimation("Equip");
   }
 
   public setGun(slot: Slot.Primary | Slot.Secondary, gunName: ExtractKeys<typeof Assets.Guns, GunModel>): void {
