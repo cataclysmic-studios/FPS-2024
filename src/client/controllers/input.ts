@@ -29,20 +29,16 @@ export class InputController implements OnInit {
         // case KeyCode.Two: return this.fps.equipGun(Slot.Secondary);
         // case KeyCode.Three: return this.fps.equipMelee(Slot.Melee);
 
-        case Key.Q:
-          if (this.movement.leanDirection() === -1)
-            return this.movement.lean(0);
-          else
-            return this.movement.lean(-1);
-        case Key.E:
-          if (this.movement.leanDirection() === 1)
-            return this.movement.lean(0);
-          else
-            return this.movement.lean(1);
+        case Key.LeftShift:
+          return this.movement.sprint();
 
+        case Key.Q:
+          return this.movement.lean(this.movement.leanDirection() === -1 ? 0 : -1);
+        case Key.E:
+          return this.movement.lean(this.movement.leanDirection() === 1 ? 0 : 1);
         case Key.C:
           if (this.movement.is("crouched"))
-            return this.movement.prone();
+            return this.movement.stand();
           else
             return this.movement.crouch();
         case Key.LeftControl:
@@ -50,6 +46,13 @@ export class InputController implements OnInit {
             return this.movement.stand();
           else
             return this.movement.prone();
+      }
+    });
+    UserInputService.InputEnded.Connect(({ KeyCode: key }, processed) => {
+      if (processed) return;
+      switch(key) {
+        case Key.LeftShift:
+          return this.movement.walk();
       }
     });
   }

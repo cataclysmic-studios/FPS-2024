@@ -5,7 +5,9 @@ export default interface MeleeData {
 
   speed: {
     equip: number;
-    walk: number;
-    sprint: number;
+    movement: {
+      walk: number;
+      sprint: number;
+    };
   };
 }

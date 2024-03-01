@@ -18,7 +18,10 @@ export default interface GunData {
   speed: {
     aim: number;
     equip: number;
-    walk: number;
-    sprint: number;
+    movement: {
+      aim: number;
+      walk: number;
+      sprint: number;
+    };
   };
 }

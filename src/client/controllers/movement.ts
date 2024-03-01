@@ -26,6 +26,7 @@ export class MovementController {
     this.fps.state.proned = false;
     this.fps.state.crouched = true;
     this.fps.state.sprinting = false;
+    this.fps.adjustCharacterSpeed();
   }
 
   public prone(): void {
@@ -33,12 +34,14 @@ export class MovementController {
     this.fps.state.crouched = false;
     this.fps.state.sprinting = false;
     this.fps.state.leanState = 0;
+    this.fps.adjustCharacterSpeed();
   }
 
   public stand(): void {
     this.fps.state.proned = false;
     this.fps.state.crouched = false;
     this.fps.state.sprinting = false;
+    this.fps.adjustCharacterSpeed();
   }
 
   public sprint(): void {
@@ -46,9 +49,11 @@ export class MovementController {
     this.fps.state.proned = false;
     this.fps.state.crouched = false;
     this.fps.state.leanState = 0;
+    this.fps.adjustCharacterSpeed();
   }
 
   public walk(): void {
     this.fps.state.sprinting = false;
+    this.fps.adjustCharacterSpeed();
   }
 }
