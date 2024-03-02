@@ -1,16 +1,15 @@
-import { Character } from "shared/utilities/client";
 import { Spring } from "shared/utilities/classes/spring";
+import type GunData from "shared/structs/gun-data";
 
 import type { FpsController } from "client/controllers/fps";
 import type ProceduralAnimation from "../procedural-animation";
-import GunData from "shared/structs/gun-data";
 
-const TORQUE_RESET_TIME = 0.1;
+const RECOVER_TIME = 0.08;
 const SPRING_DEFAULTS = {
-  camera: [20, 40, 4, 4],
-  model: [70, 1, 4, 15],
-  cameraTorque: [25, 75, 4, 5.5],
-  modelTorque: [40, 110, 4, 4]
+  camera: [20, 60, 4, 6],
+  model: [30, 90, 3, 3],
+  cameraTorque: [15, 90, 4, 6.5],
+  modelTorque: [25, 60, 4, 5.5]
 };
 
 export default class RecoilAnimation implements ProceduralAnimation {
@@ -32,7 +31,7 @@ export default class RecoilAnimation implements ProceduralAnimation {
     const data = fps.getData<GunData>();
     if (!data) return new Vector3;
 
-    const springDamper = 40;
+    const springDamper = 10;
     const spring = connectedToCamera ? this.springs.camera : this.springs.model;
     const torqueSpring = connectedToCamera ? this.springs.cameraTorque : this.springs.modelTorque;
     const origin = spring.update(dt).div(springDamper);
@@ -69,7 +68,7 @@ export default class RecoilAnimation implements ProceduralAnimation {
 
     const positional = force.div(stabilization);
     this.springs.camera.shove(positional);
-    task.delay(0.1 * modifiers.cameraRecoverSpeed, () => this.springs.camera.shove(positional.mul(-1)));
+    task.delay(RECOVER_TIME / modifiers.cameraRecoverSpeed, () => this.springs.camera.shove(positional.mul(-1)));
 
     const [torqueDefaultMass, torqueDefaultForce, torqueDefaultDamper, torqueDefaultSpeed] = SPRING_DEFAULTS.cameraTorque;
     this.springs.cameraTorque.mass = torqueDefaultMass / modifiers.cameraRecoverSpeed;
@@ -79,7 +78,7 @@ export default class RecoilAnimation implements ProceduralAnimation {
 
     const torque = force.div(stabilization);
     this.springs.cameraTorque.shove(torque.mul(torqueDirection));
-    task.delay(TORQUE_RESET_TIME, () => this.springs.cameraTorque.shove(torque.mul(-torqueDirection)));
+    task.delay(RECOVER_TIME / modifiers.cameraRecoverSpeed, () => this.springs.cameraTorque.shove(torque.mul(-torqueDirection)));
   }
 
   private kickModel(
@@ -97,7 +96,7 @@ export default class RecoilAnimation implements ProceduralAnimation {
 
     const positional = force.div(stabilization);
     this.springs.model.shove(positional);
-    task.delay(0.1 * modifiers.modelRecoverSpeed, () => this.springs.model.shove(positional.mul(-1)));
+    task.delay(RECOVER_TIME / modifiers.modelRecoverSpeed, () => this.springs.model.shove(positional.mul(-1)));
 
     const [torqueDefaultMass, torqueDefaultForce, torqueDefaultDamper, torqueDefaultSpeed] = SPRING_DEFAULTS.modelTorque;
     this.springs.modelTorque.mass = torqueDefaultMass / modifiers.modelRecoverSpeed;
@@ -107,6 +106,6 @@ export default class RecoilAnimation implements ProceduralAnimation {
 
     const torque = force.div(stabilization);
     this.springs.modelTorque.shove(torque.mul(torqueDirection));
-    task.delay(TORQUE_RESET_TIME, () => this.springs.modelTorque.shove(torque.mul(-torqueDirection)));
+    task.delay(RECOVER_TIME / modifiers.modelRecoverSpeed, () => this.springs.modelTorque.shove(torque.mul(-torqueDirection)));
   }
 }

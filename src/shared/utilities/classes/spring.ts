@@ -6,7 +6,7 @@ const { sin, min, huge: INF } = math;
   If delta time in the spring class is lower than this value,
   it will split up the update into multiple smaller updates
 */
-const MAX_SPRING_DELTA = 1 / 30;
+const MAX_SPRING_DELTA = 1 / 40;
 
 export class Spring {
   static readonly iterations = 8;
@@ -52,39 +52,12 @@ export class Spring {
     const scaledDt: number = (min(dt, 1) * this.speed) / Spring.iterations;
     for (let i = 0; i < Spring.iterations; i++) {
       const force: Vector3 = this.target.sub(this.position);
-      let accel: Vector3 = force.mul(this.force).div(this.mass);
+      let acceleration: Vector3 = force.mul(this.force).div(this.mass);
 
-      accel = accel.sub(this.velocity.mul(this.damping));
-      this.velocity = this.velocity.add(accel.mul(scaledDt));
+      acceleration = acceleration.sub(this.velocity.mul(this.damping));
+      this.velocity = this.velocity.add(acceleration.mul(scaledDt));
       this.position = this.position.add(this.velocity.mul(scaledDt));
     }
     return this.position;
-  }
-}
-
-/**
- * Simple class for sinusoidal motion
- */
-export class SineWave {
-  public constructor(
-    public readonly amplitude = 1,
-    public readonly frequency = 1,
-    public readonly phaseShift = 0,
-    public readonly verticalShift = 0
-  ) {}
-
-  /**
-   * Update wave
-   *
-   * @param dt Delta time
-   * @returns New value
-   */
-  public update(dt: number): number {
-    return (
-      (this.amplitude * sin(this.frequency * tick() + this.phaseShift) +
-        this.verticalShift) *
-      60 *
-      dt
-    );
   }
 }

@@ -1,6 +1,7 @@
 import { BaseComponent } from "@flamework/components";
 import Object from "@rbxts/object-utils";
 
+import { flattenNumber } from "shared/utilities/helpers";
 import BreathingAnimation from "client/classes/procedural-animations/breathing";
 import WalkCycleAnimation from "client/classes/procedural-animations/walk-cycle";
 import MouseSwayAnimation from "client/classes/procedural-animations/mouse-sway";
@@ -14,7 +15,7 @@ import type { FpsController } from "client/controllers/fps";
 import type { MovementController } from "client/controllers/movement";
 import type GunData from "shared/structs/gun-data";
 
-const { rad } = math;
+const { min, rad } = math;
 
 export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Model> extends BaseComponent<A, I> {
   public readonly cframeManipulators = {
@@ -51,6 +52,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   }
 
   protected updateProceduralAnimations(dt: number): CFrame {
+    dt = min(dt, 1);
     const offset = this.connectedToCamera ? this.getCameraOffset(dt) : this.getModelOffset(dt);
     const finalManipulatorOffset = this.combineCFrames(Object.values(this.cframeManipulators).map(manipulator => manipulator.Value));
     return offset.mul(finalManipulatorOffset);
@@ -63,7 +65,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       cameraOffsets.push(new CFrame(0, movement.Y * 2, 0));
     }
     {
-      const movement = this.animations.walkCycle.update(dt, this.fps);
+      const movement = this.animations.walkCycle.update(dt, this.fps).div(-4);
       cameraOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
@@ -94,8 +96,8 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     {
       const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
       cameraOffsets.push(
-        new CFrame(0, 0, recoil.Z * 2)
-          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+        new CFrame(0, 0, recoil.Z * 2.5)
+          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * 3))
       );
     }
 
@@ -105,7 +107,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   private getModelOffset(dt: number): CFrame {
     const modelOffsets: CFrame[] = [];
     {
-      const movement = this.animations.walkCycle.update(dt, this.fps).mul(-2.5);
+      const movement = this.animations.walkCycle.update(dt, this.fps).mul(16);
       modelOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
@@ -137,8 +139,8 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     {
       const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
       modelOffsets.push(
-        new CFrame(0, -recoil.X * 4, -recoil.Z)
-          .mul(CFrame.Angles(recoil.X * 2, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+        new CFrame(0, -recoil.X * 5, recoil.Z * 10)
+          .mul(CFrame.Angles(recoil.X * 2.5, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
       );
     }
 

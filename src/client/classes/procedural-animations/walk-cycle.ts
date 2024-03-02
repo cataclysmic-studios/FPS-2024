@@ -1,5 +1,6 @@
 import { Character } from "shared/utilities/client";
 import { Spring } from "shared/utilities/classes/spring";
+import { flattenNumber } from "shared/utilities/helpers";
 import Wave from "shared/utilities/classes/wave";
 
 import type { FpsController } from "client/controllers/fps";
@@ -19,12 +20,11 @@ export default class WalkCycleAnimation implements ProceduralAnimation {
   }
 
   public update(dt: number, { state: { aimed } }: FpsController): Vector3 {
-    const epsilon = 0.025;
+    const waveDamping = 50;
     const velocity = Character.PrimaryPart!.AssemblyLinearVelocity;
-    const walkSpeed = math.max(velocity.sub(new Vector3(0, velocity.Y, 0)).Magnitude - epsilon, 0);
-    const waveDamping = 125;
-    const x = this.sineWave.update(dt, waveDamping, walkSpeed / 18);
-    const y = this.cosineWave.update(dt, waveDamping, walkSpeed / 18);
+    const walkSpeed = flattenNumber(velocity.sub(new Vector3(0, velocity.Y, 0)).Magnitude, 0.04);
+    const x = walkSpeed === 0 ? 0 : this.sineWave.update(dt, waveDamping, walkSpeed / 18);
+    const y = walkSpeed === 0 ? 0 : this.cosineWave.update(dt, waveDamping, walkSpeed / 18);
     const force = new Vector3(x / 2, y, x / 1.5).div(aimed ? 1.75 : 1);
 
     this.spring.shove(force);

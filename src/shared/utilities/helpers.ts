@@ -44,6 +44,15 @@ export function removeDuplicates<T extends defined>(array: T[]): T[] {
   return result;
 }
 
+/**
+ * Returns 0 if the number is close enough to 0 by `epsilon`
+ * @param n
+ * @param epsilon
+ */
+export function flattenNumber(n: number, epsilon = 0.001): number {
+  return abs(n) < epsilon ? 0 : n;
+}
+
 export function flatten<T extends defined>(array: (T | T[])[]): T[] {
   const result: T[] = [];
   for (const value of array) {
