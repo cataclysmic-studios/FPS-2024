@@ -1,6 +1,5 @@
 import type { OnStart, OnRender } from "@flamework/core";
 import { Component, type Components } from "@flamework/components";
-import { Workspace as World } from "@rbxts/services";
 import { Janitor } from "@rbxts/janitor";
 
 import { Character } from "shared/utilities/client";
@@ -9,6 +8,7 @@ import Log from "shared/logger";
 
 import { ProceduralAnimations } from "../base-components/procedural-animations";
 import type { Gun } from "./gun";
+import type { CharacterCamera } from "./cameras/character-camera";
 import type { FpsController } from "client/controllers/fps";
 import type { MovementController } from "client/controllers/movement";
 
@@ -27,11 +27,11 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
 
   public onStart(): void {
     Log.info("Created ViewModel")
-    this.startProceduralAnimations();
-    this.instance.Parent = <Camera>World.WaitForChild("CharacterCamera");
+    this.instance.Parent = this.components.getAllComponents<CharacterCamera>()[0].instance;
     this.gunMotor.Name = "Gun";
     this.gunMotor.Part0 = this.instance.Mesh;
     this.janitor.Add(this.instance);
+    this.startProceduralAnimations();
   }
 
   public onRender(dt: number): void {

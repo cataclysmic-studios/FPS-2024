@@ -6,6 +6,8 @@ import type { MovementController } from "client/controllers/movement";
 import type ProceduralAnimation from "../procedural-animation";
 
 export default class ProneAnimation implements ProceduralAnimation {
+  public readonly headHeight = -2.75;
+
   private readonly t = new Instance("NumberValue");
   private readonly tweenInfo = new TweenInfoBuilder()
     .SetTime(0.5)

@@ -87,17 +87,17 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     }
     {
       const { X: crouch } = this.animations.crouch.update(dt);
-      cameraOffsets.push(new CFrame(0, crouch * -1.5, 0));
+      cameraOffsets.push(new CFrame(0, crouch * this.animations.crouch.headHeight, 0));
     }
     {
       const { X: prone } = this.animations.prone.update(dt);
-      cameraOffsets.push(new CFrame(0, prone * -2.75, 0));
+      cameraOffsets.push(new CFrame(0, prone * this.animations.prone.headHeight, 0));
     }
     {
       const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
       cameraOffsets.push(
         new CFrame(0, 0, recoil.Z * 2.5)
-          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * 3))
+          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 3 : 1)))
       );
     }
 
@@ -126,7 +126,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       const movement = this.animations.landing.update(dt, this.fps).div(32);
       modelOffsets.push(
         new CFrame(0, movement.Y, 0)
-          .mul(CFrame.Angles(movement.Y / 2, 0, 0))
+          .mul(CFrame.Angles(movement.Y * (this.fps.state.aimed ? 1 : 3), 0, 0))
       );
     }
     // {

@@ -6,8 +6,9 @@ import type { MovementController } from "client/controllers/movement";
 import type ProceduralAnimation from "../procedural-animation";
 
 export default class CrouchAnimation implements ProceduralAnimation {
-  public readonly crouchAngle = 20;
-  public readonly crouchZOffset = 1;
+  public readonly headHeight = -1.5;
+  // public readonly crouchModelAngle = 20;
+  // public readonly crouchModelZOffset = 1;
 
   private readonly t = new Instance("NumberValue");
   private readonly tweenInfo = new TweenInfoBuilder()

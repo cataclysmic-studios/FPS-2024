@@ -10,7 +10,7 @@ export default class LeanAnimation implements ProceduralAnimation {
 
   private readonly t = new Instance("NumberValue");
   private readonly tweenInfo = new TweenInfoBuilder()
-    .SetTime(0.25)
+    .SetTime(0.3)
     .SetEasingStyle(Enum.EasingStyle.Sine)
     .SetEasingDirection(Enum.EasingDirection.Out)
 
