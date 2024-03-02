@@ -3,12 +3,14 @@ import { Component, type Components } from "@flamework/components";
 import { Workspace as World } from "@rbxts/services";
 import { Janitor } from "@rbxts/janitor";
 
-import { Assets } from "shared/utilities/helpers";
-
 import { Character } from "shared/utilities/client";
+import { Assets } from "shared/utilities/helpers";
+import Log from "shared/logger";
+
 import { ProceduralAnimations } from "../base-components/procedural-animations";
 import type { Gun } from "./gun";
 import type { FpsController } from "client/controllers/fps";
+import type { MovementController } from "client/controllers/movement";
 
 @Component({ tag: "ViewModel" })
 export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements OnStart, OnRender {
@@ -19,10 +21,12 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
 
   public constructor(
     private readonly components: Components,
-    fps: FpsController
-  ) { super(fps); }
+    fps: FpsController,
+    movement: MovementController
+  ) { super(fps, movement); }
 
   public onStart(): void {
+    Log.info("Created ViewModel")
     this.instance.Parent = <Camera>World.WaitForChild("CharacterCamera");
     this.gunMotor.Name = "Gun";
     this.gunMotor.Part0 = this.instance.Mesh;

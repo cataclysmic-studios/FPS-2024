@@ -7,6 +7,8 @@ import MouseSwayAnimation from "client/classes/procedural-animations/mouse-sway"
 import LandingAnimation from "client/classes/procedural-animations/landing";
 
 import type { FpsController } from "client/controllers/fps";
+import LeanAnimation from "client/classes/procedural-animations/lean";
+import { MovementController } from "client/controllers/movement";
 
 const { rad } = math;
 
@@ -14,29 +16,33 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   public readonly cframeManipulators = {
     aim: new Instance("CFrameValue")
   };
-  private readonly animations = {
+
+  private readonly connectedToCamera = this.instance.IsA("Camera");
+  public readonly animations = {
     breathing: new BreathingAnimation,
     walkCycle: new WalkCycleAnimation,
     mouseSway: new MouseSwayAnimation,
-    landing: new LandingAnimation
+    landing: new LandingAnimation,
+
+    lean: new LeanAnimation
   };
 
+
   public constructor(
-    protected readonly fps: FpsController
+    protected readonly fps: FpsController,
+    protected readonly movement: MovementController
   ) { super(); }
 
   public startProceduralAnimations(): void {
     for (const animation of Object.values(this.animations))
-      animation.start();
+      animation.start(this.movement);
   }
 
   public updateProceduralAnimations(dt: number): CFrame {
-    const offset = this.instance.IsA("Camera") ? this.getCameraOffset(dt) : this.getModelOffset(dt);
-    const finalManipulatorOffset = Object.values(this.cframeManipulators)
-      .map(manipulator => manipulator.Value)
-      .reduce((sum, offset) => sum.mul(offset), new CFrame);
-
-    return offset.mul(finalManipulatorOffset);
+    const offset = this.connectedToCamera ? this.getCameraOffset(dt) : this.getModelOffset(dt);
+    const finalManipulatorOffset = this.combineCFrames(Object.values(this.cframeManipulators).map(manipulator => manipulator.Value));
+    return offset
+      .mul(finalManipulatorOffset);
   }
 
   private getCameraOffset(dt: number): CFrame {
@@ -59,8 +65,15 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
           .mul(CFrame.Angles(rad(movement.Y), 0, 0))
       );
     }
+    {
+      const { X: lean } = this.animations.lean.update(dt);
+      cameraOffsets.push(
+        new CFrame(lean, 0, 0)
+          .mul(CFrame.Angles(0, 0, rad(-lean * this.animations.lean.angle)))
+      );
+    }
 
-    return cameraOffsets.reduce((sum, offset) => sum.mul(offset), new CFrame);
+    return this.combineCFrames(cameraOffsets);
   }
 
   private getModelOffset(dt: number): CFrame {
@@ -89,6 +102,10 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       );
     }
 
-    return modelOffsets.reduce((sum, offset) => sum.mul(offset), new CFrame);
+    return this.combineCFrames(modelOffsets);
+  }
+
+  private combineCFrames(cframes: CFrame[]): CFrame {
+    return cframes.reduce((sum, cf) => sum.mul(cf), new CFrame);
   }
 }

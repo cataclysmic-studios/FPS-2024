@@ -6,11 +6,12 @@ import Log from "shared/logger";
 
 import { ProceduralAnimations } from "../../base-components/procedural-animations";
 import type { FpsController } from "client/controllers/fps";
+import type { MovementController } from "client/controllers/movement";
 
 @Component({ tag: "CharacterCamera" })
 export class CharacterCamera extends ProceduralAnimations<{}, Camera> implements OnStart, OnRender {
-  public constructor(fps: FpsController) {
-    super(fps);
+  public constructor(fps: FpsController, movement: MovementController) {
+    super(fps, movement);
   }
 
   public onStart(): void {

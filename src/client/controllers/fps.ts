@@ -19,6 +19,8 @@ import type { CharacterCamera } from "client/components/cameras/character-camera
 import type { ProceduralAnimations } from "client/base-components/procedural-animations";
 import Log from "shared/logger";
 
+const { sin, cos, rad } = math;
+
 const enum CFrameManipulationType {
   Camera,
   ViewModel,
@@ -84,10 +86,12 @@ export class FpsController implements OnInit {
     tween(this.characterCamera.instance, AIM_TWEEN_INFO, {
       FieldOfView: FOV.Base / (aimed ? gunData.zoom : 1)
     });
+
+    const aimOffset = this.vm.currentGun.instance.Offsets.Aim.Value.mul(this.vm.currentGun.instance.Offsets.Main.Value.Inverse());
     this.tweenCFrameManipulator(
       "aim", CFrameManipulationType.ViewModel,
       AIM_TWEEN_INFO,
-      aimed ? this.vm.currentGun.instance.Offsets.Aim.Value : new CFrame
+      aimed ? aimOffset : new CFrame
     );
   }
 

@@ -31,7 +31,6 @@ export class Spring {
     if (isNaN(X) || X === INF || X === -INF) X = 0;
     if (isNaN(Y) || Y === INF || Y === -INF) Y = 0;
     if (isNaN(Z) || Z === INF || Z === -INF) Z = 0;
-
     this.velocity = this.velocity.add(new Vector3(X, Y, Z));
   }
 

@@ -1,11 +1,14 @@
 import { Controller } from "@flamework/core";
 
-import type{ FpsState, LeanState } from "shared/structs/fps-state";
+import type { FpsState, LeanState } from "shared/structs/fps-state";
 
 import type { FpsController } from "./fps";
+import Signal from "@rbxts/signal";
 
 @Controller()
 export class MovementController {
+  public readonly leanStateChanged = new Signal<(newState: LeanState) => void>;
+
   public constructor(
     private readonly fps: FpsController
   ) {}
@@ -20,6 +23,7 @@ export class MovementController {
 
   public lean(state: LeanState): void {
     this.fps.state.leanState = state;
+    this.leanStateChanged.Fire(this.fps.state.leanState);
   }
 
   public crouch(): void {
