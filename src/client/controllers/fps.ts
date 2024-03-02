@@ -130,6 +130,11 @@ export class FpsController implements OnInit {
       AIM_TWEEN_INFO,
       aimed ? aimOffset : new CFrame
     );
+
+    if (aimed)
+      this.vm.currentGun.aimSound.Play();
+    else
+      this.vm.currentGun.unaimSound.Play();
   }
 
   public adjustCharacterSpeed() {

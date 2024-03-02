@@ -3,13 +3,19 @@ import { Component, BaseComponent } from "@flamework/components";
 import { Janitor } from "@rbxts/janitor";
 
 import type GunData from "shared/structs/gun-data";
+import { Assets } from "shared/utilities/helpers";
 
 @Component({ tag: "Gun" })
 export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
   public readonly janitor = new Janitor;
+  public readonly aimSound = Assets.CommonAudio.Aim.Clone();
+  public readonly unaimSound = Assets.CommonAudio.Unaim.Clone();
 
   public onStart(): void {
     this.weld();
+    this.instance.Handle.Equip.Play();
+    this.aimSound.Parent = this.instance.Handle;
+    this.unaimSound.Parent = this.instance.Handle;
     this.janitor.Add(this.instance);
   }
 

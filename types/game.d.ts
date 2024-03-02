@@ -62,5 +62,6 @@ interface GunModel extends Model {
   Mag: BasePart;
   Handle: BasePart & {
     Fire: Sound;
+    Equip: Sound;
   };
 }

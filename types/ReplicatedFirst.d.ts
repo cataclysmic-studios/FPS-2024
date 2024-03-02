@@ -11,5 +11,9 @@ interface ReplicatedFirst extends Instance {
     Melees: Folder & {
       Knife: MeleeModel;
     };
+    CommonAudio: Folder & {
+      Aim: Sound;
+      Unaim: Sound;
+    }
   };
 }
