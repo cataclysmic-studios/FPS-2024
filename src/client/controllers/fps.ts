@@ -10,6 +10,7 @@ import { tween } from "shared/utilities/ui";
 import { DEFAULT_FPS_STATE, type FpsState } from "shared/structs/fps-state";
 import GunData from "shared/structs/gun-data";
 import MeleeData from "shared/structs/melee-data";
+import Firemode from "shared/structs/enums/firemode";
 import FOV from "shared/structs/enums/fov";
 import Slot from "shared/structs/enums/slot";
 
@@ -47,6 +48,7 @@ export class FpsController implements OnInit {
   public characterCamera?: CharacterCamera;
 
   private mouseDown = false;
+  private currentFiremodes: [Maybe<Firemode>, Maybe<Firemode>] = [undefined, undefined];
 
   public constructor(
     private readonly components: Components,
@@ -58,19 +60,51 @@ export class FpsController implements OnInit {
 
   public onInit(): void {
     const mouse = Player.GetMouse();
-    mouse.Button1Down.Connect(() => this.mouseDown = true);
     mouse.Button1Up.Connect(() => this.mouseDown = false);
     task.delay(1.5, () => this.deploy());
   }
 
-  private deploy(): void {
+  public deploy(): void {
     this.createCharacter(DEFAULT_CHARACTER);
     this.setGun(Slot.Primary, "HK433");
     this.setMelee("Knife");
   }
 
   public shoot(): void {
+    this.mouseDown = true;
+    const data = this.getData<GunData>();
+    const firemode = this.getCurrentFiremode();
+    if (!data) return;
+    if (firemode === undefined) return;
+
+    switch(firemode) {
+      case Firemode.Auto: {
+        while (this.mouseDown)
+          this.fireShot(data);
+        break;
+      }
+      case Firemode.Burst: {
+        const burstCount = data.burstCount ?? 3;
+        let shots = 0;
+        do {
+          if (!this.mouseDown) break;
+          this.fireShot(data);
+          shots += 1;
+        } while (shots < burstCount)
+        break;
+      }
+      case Firemode.Semi:
+      case Firemode.Bolt:
+        return this.fireShot(data);
+    }
+  }
+
+  private fireShot({ firerate }: GunData): void {
     this.state.shooting = true;
+    this.applyRecoil();
+    this.vm!.currentGun!.shoot();
+    task.wait(60 / firerate);
+    this.state.shooting = false;
   }
 
   public aim(aimed: boolean): void {
@@ -131,11 +165,15 @@ export class FpsController implements OnInit {
   }
 
   public unequip(): void {
-    if (!this.state.currentSlot) return;
+    const currentSlot = this.state.currentSlot;
+    if (currentSlot === undefined) return;
     if (!this.vm) return;
     this.vm.removeGun();
     // this.vm.playAnimation("Unequip", data.speed.equip);
+
     this.state.currentSlot = undefined;
+    if (currentSlot !== Slot.Melee)
+      this.currentFiremodes[currentSlot] = undefined;
   }
 
   public setGun(slot: Slot.Primary | Slot.Secondary, gunName: ExtractKeys<typeof Assets.Guns, GunModel>): void {
@@ -144,6 +182,40 @@ export class FpsController implements OnInit {
 
   public setMelee(meleeName: ExtractKeys<typeof Assets.Melees, MeleeModel>): void {
     this.state.melee = meleeName;
+  }
+
+  public getData<T extends GunData | MeleeData = GunData | MeleeData>(): Maybe<T> {
+    if (this.state.currentSlot === undefined) return;
+    return <T>this.state.weaponData[this.state.currentSlot];
+  }
+
+  private applyRecoil(): void {
+    if (!this.vm) return;
+    if (!this.characterCamera) return;
+
+    const gunData = this.getData<GunData>();
+    if (!gunData) return;
+
+    const random = new Random;
+    const torqueDirection = random.NextInteger(1, 2) === 1 ? 1 : -1;
+    const stabilization = this.getRecoilStabilization(gunData);
+    const { recoil: [[y1, y2], [x1, x2], [z1, z2]] } = gunData;
+    const force = new Vector3(
+      random.NextNumber(y1, y2),
+      random.NextNumber(x1, x2),
+      random.NextNumber(z1, z2)
+    );
+
+    this.vm.kickRecoil(force, stabilization, torqueDirection);
+    this.characterCamera.kickRecoil(force, stabilization, torqueDirection);
+  }
+
+  private getRecoilStabilization({ aimedStabilization }: GunData): number {
+    let stabilization = 1;
+    if (this.state.aimed) stabilization += aimedStabilization;
+    if (this.state.crouched) stabilization += 0.1;
+    if (this.state.proned) stabilization += 0.2;
+    return stabilization;
   }
 
   private tweenCFrameManipulator(
@@ -162,14 +234,16 @@ export class FpsController implements OnInit {
       tween(this.vm.cframeManipulators[name], info, { Value: target });
   }
 
-  private getData<T extends GunData | MeleeData = GunData | MeleeData>(): Maybe<T> {
-    if (this.state.currentSlot === undefined) return;
-    return <T>this.state.weaponData[this.state.currentSlot];
-  }
-
   private loadGun(slot: Slot.Primary | Slot.Secondary, gun: Gun): GunData {
     const data = gun.getData();
     this.state.weaponData[slot] = data;
+    this.currentFiremodes[slot] = this.currentFiremodes[slot] ?? data.firemodes[0];
     return data;
+  }
+
+  private getCurrentFiremode(): Maybe<Firemode> {
+    if (this.state.currentSlot === undefined) return;
+    if (this.state.currentSlot === Slot.Melee) return;
+    return this.currentFiremodes[this.state.currentSlot];
   }
 }

@@ -60,5 +60,7 @@ interface GunModel extends Model {
   Animations: GunAnimationsFolder;
   Bolt: BasePart;
   Mag: BasePart;
-  Handle: BasePart;
+  Handle: BasePart & {
+    Fire: Sound;
+  };
 }

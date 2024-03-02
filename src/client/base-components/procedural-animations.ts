@@ -5,12 +5,14 @@ import BreathingAnimation from "client/classes/procedural-animations/breathing";
 import WalkCycleAnimation from "client/classes/procedural-animations/walk-cycle";
 import MouseSwayAnimation from "client/classes/procedural-animations/mouse-sway";
 import LandingAnimation from "client/classes/procedural-animations/landing";
+import RecoilAnimation from "client/classes/procedural-animations/recoil";
 import LeanAnimation from "client/classes/procedural-animations/lean";
 import CrouchAnimation from "client/classes/procedural-animations/crouch";
 import ProneAnimation from "client/classes/procedural-animations/prone";
 
 import type { FpsController } from "client/controllers/fps";
 import type { MovementController } from "client/controllers/movement";
+import type GunData from "shared/structs/gun-data";
 
 const { rad } = math;
 
@@ -25,24 +27,30 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     walkCycle: new WalkCycleAnimation,
     mouseSway: new MouseSwayAnimation,
     landing: new LandingAnimation,
+    recoil: new RecoilAnimation,
 
     lean: new LeanAnimation,
     crouch: new CrouchAnimation,
     prone: new ProneAnimation
   };
 
-
   public constructor(
     protected readonly fps: FpsController,
     protected readonly movement: MovementController
   ) { super(); }
 
-  public startProceduralAnimations(): void {
+  public kickRecoil(force: Vector3, stabilization: number, torqueDirection: number): void {
+    const gunData = this.fps.getData<GunData>();
+    if (!gunData) return;
+    this.animations.recoil.kick(gunData, force, stabilization, torqueDirection, this.connectedToCamera);
+  }
+
+  protected startProceduralAnimations(): void {
     for (const animation of Object.values(this.animations))
       animation.start(this.movement);
   }
 
-  public updateProceduralAnimations(dt: number): CFrame {
+  protected updateProceduralAnimations(dt: number): CFrame {
     const offset = this.connectedToCamera ? this.getCameraOffset(dt) : this.getModelOffset(dt);
     const finalManipulatorOffset = this.combineCFrames(Object.values(this.cframeManipulators).map(manipulator => manipulator.Value));
     return offset.mul(finalManipulatorOffset);
@@ -83,6 +91,13 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       const { X: prone } = this.animations.prone.update(dt);
       cameraOffsets.push(new CFrame(0, prone * -2.75, 0));
     }
+    {
+      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
+      cameraOffsets.push(
+        new CFrame(0, 0, recoil.Z * 2)
+          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+      );
+    }
 
     return this.combineCFrames(cameraOffsets);
   }
@@ -119,6 +134,13 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     //       .mul(CFrame.Angles(0, 0, rad(crouch * this.animations.crouch.crouchAngle)))
     //   );
     // }
+    {
+      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
+      modelOffsets.push(
+        new CFrame(0, -recoil.X * 4, -recoil.Z)
+          .mul(CFrame.Angles(recoil.X * 2, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+      );
+    }
 
     return this.combineCFrames(modelOffsets);
   }

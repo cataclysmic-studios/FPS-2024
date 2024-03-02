@@ -13,6 +13,10 @@ export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
     this.janitor.Add(this.instance);
   }
 
+  public shoot(): void {
+    this.instance.Handle.Fire.Play();
+  }
+
   public getAnimation(name: AnimationName): Animation {
     return this.instance.Animations[name];
   }
