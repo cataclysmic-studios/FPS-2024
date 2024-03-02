@@ -7,7 +7,7 @@ export default class Wave {
     public waveFunction: (n: number) => number = math.sin
   ) {}
 
-  public update(dt: number, damping = 1, frequencyMultiplier = 1): number {
-    return ((this.amplitude * this.waveFunction((this.frequency * frequencyMultiplier) * tick() + this.phaseShift) + this.verticalShift) * dt) / damping;
+  public update(dt: number, damping = 1): number {
+    return ((this.amplitude * this.waveFunction(this.frequency * os.clock() + this.phaseShift) + this.verticalShift) * dt) / damping;
   }
 }

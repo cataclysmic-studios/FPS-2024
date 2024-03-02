@@ -12,7 +12,7 @@ export default class LandingAnimation implements ProceduralAnimation {
   public start(): void {}
 
   public update(dt: number, { state: { aimed } }: FpsController, springReturn?: boolean): Vector3 {
-    this.shoveLandingSpring(Character.PrimaryPart!.AssemblyLinearVelocity.div(12 * (aimed ? 1.75 : 1)), springReturn);
+    this.shoveLandingSpring(Character.PrimaryPart!.AssemblyLinearVelocity.div(12 * (aimed ? 3 : 1)), springReturn);
     return this.spring.update(dt);
   }
 
