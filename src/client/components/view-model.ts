@@ -27,11 +27,10 @@ export class ViewModel extends ProceduralAnimations<{}, ArmsModel> implements On
 
   public onStart(): void {
     Log.info("Created ViewModel")
+    this.startProceduralAnimations();
     this.instance.Parent = <Camera>World.WaitForChild("CharacterCamera");
     this.gunMotor.Name = "Gun";
     this.gunMotor.Part0 = this.instance.Mesh;
-
-    this.startProceduralAnimations();
     this.janitor.Add(this.instance);
   }
 

@@ -5,10 +5,12 @@ import BreathingAnimation from "client/classes/procedural-animations/breathing";
 import WalkCycleAnimation from "client/classes/procedural-animations/walk-cycle";
 import MouseSwayAnimation from "client/classes/procedural-animations/mouse-sway";
 import LandingAnimation from "client/classes/procedural-animations/landing";
+import LeanAnimation from "client/classes/procedural-animations/lean";
+import CrouchAnimation from "client/classes/procedural-animations/crouch";
+import ProneAnimation from "client/classes/procedural-animations/prone";
 
 import type { FpsController } from "client/controllers/fps";
-import LeanAnimation from "client/classes/procedural-animations/lean";
-import { MovementController } from "client/controllers/movement";
+import type { MovementController } from "client/controllers/movement";
 
 const { rad } = math;
 
@@ -24,7 +26,9 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     mouseSway: new MouseSwayAnimation,
     landing: new LandingAnimation,
 
-    lean: new LeanAnimation
+    lean: new LeanAnimation,
+    crouch: new CrouchAnimation,
+    prone: new ProneAnimation
   };
 
 
@@ -41,8 +45,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   public updateProceduralAnimations(dt: number): CFrame {
     const offset = this.connectedToCamera ? this.getCameraOffset(dt) : this.getModelOffset(dt);
     const finalManipulatorOffset = this.combineCFrames(Object.values(this.cframeManipulators).map(manipulator => manipulator.Value));
-    return offset
-      .mul(finalManipulatorOffset);
+    return offset.mul(finalManipulatorOffset);
   }
 
   private getCameraOffset(dt: number): CFrame {
@@ -72,6 +75,14 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
           .mul(CFrame.Angles(0, 0, rad(-lean * this.animations.lean.angle)))
       );
     }
+    {
+      const { X: crouch } = this.animations.crouch.update(dt);
+      cameraOffsets.push(new CFrame(0, crouch * -1.5, 0));
+    }
+    {
+      const { X: prone } = this.animations.prone.update(dt);
+      cameraOffsets.push(new CFrame(0, prone * -2.75, 0));
+    }
 
     return this.combineCFrames(cameraOffsets);
   }
@@ -79,7 +90,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
   private getModelOffset(dt: number): CFrame {
     const modelOffsets: CFrame[] = [];
     {
-      const movement = this.animations.walkCycle.update(dt, this.fps).mul(-2);
+      const movement = this.animations.walkCycle.update(dt, this.fps).mul(-2.5);
       modelOffsets.push(
         new CFrame(0, movement.Y, 0)
           .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
@@ -101,6 +112,13 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
           .mul(CFrame.Angles(movement.Y / 2, 0, 0))
       );
     }
+    // {
+    //   const { X: crouch } = this.animations.crouch.update(dt);
+    //   modelOffsets.push(
+    //     new CFrame(0, 0, this.animations.crouch.crouchZOffset)
+    //       .mul(CFrame.Angles(0, 0, rad(crouch * this.animations.crouch.crouchAngle)))
+    //   );
+    // }
 
     return this.combineCFrames(modelOffsets);
   }

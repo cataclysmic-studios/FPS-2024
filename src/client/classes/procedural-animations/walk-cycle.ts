@@ -22,9 +22,9 @@ export default class WalkCycleAnimation implements ProceduralAnimation {
     const epsilon = 0.025;
     const velocity = Character.PrimaryPart!.AssemblyLinearVelocity;
     const walkSpeed = math.max(velocity.sub(new Vector3(0, velocity.Y, 0)).Magnitude - epsilon, 0);
-    const waveDamping = 120;
-    const x = this.sineWave.update(dt, waveDamping) * walkSpeed;
-    const y = this.cosineWave.update(dt, waveDamping) * walkSpeed;
+    const waveDamping = 125;
+    const x = this.sineWave.update(dt, waveDamping, walkSpeed / 18);
+    const y = this.cosineWave.update(dt, waveDamping, walkSpeed / 18);
     const force = new Vector3(x / 2, y, x / 1.5).div(aimed ? 1.75 : 1);
 
     this.spring.shove(force);

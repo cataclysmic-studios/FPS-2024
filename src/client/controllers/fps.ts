@@ -2,6 +2,7 @@ import { Controller, type OnInit } from "@flamework/core";
 import type { Components } from "@flamework/components";
 import { Workspace as World, UserInputService } from "@rbxts/services";
 import { TweenInfoBuilder } from "@rbxts/builders";
+import Signal from "@rbxts/signal";
 
 import { Player } from "shared/utilities/client";
 import { Assets } from "shared/utilities/helpers";
@@ -38,9 +39,10 @@ const DEFAULT_CHARACTER: CharacterCreationOptions = {
   arms: "Standard"
 };
 
-@Controller()
+@Controller({ loadOrder: 0 })
 export class FpsController implements OnInit {
   public readonly state: FpsState = DEFAULT_FPS_STATE;
+  public readonly aimed = new Signal<(aimed: boolean) => void>;
   public vm?: ViewModel;
   public characterCamera?: CharacterCamera;
 
@@ -73,7 +75,8 @@ export class FpsController implements OnInit {
 
   public aim(aimed: boolean): void {
     if (!this.characterCamera) return;
-    if(!this.vm?.currentGun) return;
+    if (!this.vm?.currentGun) return;
+    if (this.state.sprinting) return;
     this.state.aimed = aimed;
 
     const gunData = this.getData<GunData>()!;

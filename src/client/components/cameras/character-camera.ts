@@ -16,8 +16,8 @@ export class CharacterCamera extends ProceduralAnimations<{}, Camera> implements
 
   public onStart(): void {
     Log.info("Started CharacterCamera");
-    Player.CameraMode = Enum.CameraMode.LockFirstPerson;
     this.startProceduralAnimations();
+    Player.CameraMode = Enum.CameraMode.LockFirstPerson;
   }
 
   public onRender(dt: number): void {
