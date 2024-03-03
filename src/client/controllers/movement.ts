@@ -4,6 +4,7 @@ import Signal from "@rbxts/signal";
 import type { FpsState, LeanState } from "shared/structs/fps-state";
 
 import type { FpsController } from "./fps";
+import { Character } from "shared/utilities/client";
 
 @Controller()
 export class MovementController {
@@ -27,6 +28,23 @@ export class MovementController {
   public lean(state: LeanState): void {
     this.fps.state.leanState = state;
     this.leanStateChanged.Fire(this.fps.state.leanState);
+  }
+
+  public slide(): void {
+    this.crouch();
+
+    const root = Character.PrimaryPart!;
+    const baseForce = 50;
+    const loops = 16;
+    const baseTime = 0.15;
+    const smoothness = 2;
+    for (let i = 1; i <= loops; i++) {
+      root.AssemblyLinearVelocity = root.AssemblyLinearVelocity
+        .add(root.CFrame.UpVector.mul(-1 / i))
+        .add(root.CFrame.LookVector.mul(baseForce / (i / smoothness)));
+
+      task.wait(baseTime / i);
+    }
   }
 
   public crouch(): void {

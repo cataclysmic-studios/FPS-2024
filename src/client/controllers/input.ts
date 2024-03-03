@@ -42,7 +42,10 @@ export class InputController implements OnInit {
           if (this.movement.is("crouched"))
             return this.movement.stand();
           else
-            return this.movement.crouch();
+            if (this.movement.is("sprinting"))
+              return this.movement.slide();
+            else
+              return this.movement.crouch();
         case Key.LeftControl:
           if (this.movement.is("proned"))
             return this.movement.stand();
