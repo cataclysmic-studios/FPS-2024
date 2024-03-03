@@ -7,7 +7,7 @@ import type ProceduralAnimation from "../procedural-animation";
 const { clamp, abs } = math;
 
 export default class LandingAnimation implements ProceduralAnimation {
-  private readonly spring = new Spring(4, 40, 4, 4);
+  private readonly spring = new Spring(2, 40, 4, 4);
 
   public start(): void {}
 

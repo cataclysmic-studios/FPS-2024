@@ -5,9 +5,10 @@ import type { FpsController } from "client/controllers/fps";
 import type ProceduralAnimation from "../procedural-animation";
 
 const RECOVER_TIME = 0.08;
+const TORQUE_RECOVER_TIME = 0.04;
 const SPRING_DEFAULTS = {
-  camera: [20, 60, 4, 6],
-  model: [30, 90, 3, 3],
+  camera: [20, 30, 4, 6],
+  model: [30, 120, 3, 3],
   cameraTorque: [15, 90, 4, 6.5],
   modelTorque: [25, 60, 4, 5.5]
 };
@@ -78,7 +79,7 @@ export default class RecoilAnimation implements ProceduralAnimation {
 
     const torque = force.div(stabilization);
     this.springs.cameraTorque.shove(torque.mul(torqueDirection));
-    task.delay(RECOVER_TIME / modifiers.cameraRecoverSpeed, () => this.springs.cameraTorque.shove(torque.mul(-torqueDirection)));
+    task.delay(TORQUE_RECOVER_TIME / modifiers.cameraRecoverSpeed, () => this.springs.cameraTorque.shove(torque.mul(-torqueDirection)));
   }
 
   private kickModel(
@@ -106,6 +107,6 @@ export default class RecoilAnimation implements ProceduralAnimation {
 
     const torque = force.div(stabilization);
     this.springs.modelTorque.shove(torque.mul(torqueDirection));
-    task.delay(RECOVER_TIME / modifiers.modelRecoverSpeed, () => this.springs.modelTorque.shove(torque.mul(-torqueDirection)));
+    task.delay(TORQUE_RECOVER_TIME / modifiers.modelRecoverSpeed, () => this.springs.modelTorque.shove(torque.mul(-torqueDirection)));
   }
 }

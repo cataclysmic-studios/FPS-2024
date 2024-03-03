@@ -6,7 +6,7 @@ import type { MovementController } from "client/controllers/movement";
 import type ProceduralAnimation from "../procedural-animation";
 
 export default class LeanAnimation implements ProceduralAnimation {
-  public readonly angle = 20;
+  public readonly angle = 15;
 
   private readonly t = new Instance("NumberValue");
   private readonly tweenInfo = new TweenInfoBuilder()

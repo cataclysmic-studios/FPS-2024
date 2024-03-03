@@ -28,7 +28,7 @@ export default class WalkCycleAnimation implements ProceduralAnimation {
     this.cosineWave.frequency = walkSpeed / 1.25;
     const x = walkSpeed === 0 ? 0 : this.sineWave.update(1, waveDamping);
     const y = walkSpeed === 0 ? 0 : this.cosineWave.update(1, waveDamping);
-    const force = new Vector3(x / 2, y, x / 1.5)
+    const force = new Vector3(x * (aimed ? 1 : 3), y, x)
       .div(aimed ? 5 : 1)
       .mul(sprinting ? 2 : 1);
 

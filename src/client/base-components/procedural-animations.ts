@@ -68,7 +68,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       const movement = this.animations.walkCycle.update(dt, this.fps).div(-4);
       cameraOffsets.push(
         new CFrame(0, movement.Y, 0)
-          .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
+          .mul(CFrame.Angles(movement.Y, movement.X / 3.5, movement.Z))
       );
     }
     {
@@ -94,10 +94,10 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       cameraOffsets.push(new CFrame(0, prone * this.animations.prone.headHeight, 0));
     }
     {
-      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
+      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 3.5 : 1.5);
       cameraOffsets.push(
         new CFrame(0, 0, recoil.Z * 3)
-          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 3 : 1)))
+          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 5 : 1)))
       );
     }
 
@@ -109,12 +109,12 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     {
       const movement = this.animations.walkCycle.update(dt, this.fps).mul(16);
       modelOffsets.push(
-        new CFrame(0, movement.Y, 0)
-          .mul(CFrame.Angles(movement.Y, movement.X, movement.Z))
+        new CFrame(movement.X * 1.5, movement.Y * 2, 0)
+          .mul(CFrame.Angles(movement.Y, movement.X / 5, movement.Z))
       );
     }
     {
-      const sway = this.animations.mouseSway.update(dt, this.fps);
+      const sway = this.animations.mouseSway.update(dt, this.fps).mul(1.25);
       const aimSway = new CFrame(-sway.X, sway.Y, -sway.X)
         .mul(CFrame.Angles(-sway.Y, -sway.X, sway.X));
       const hipSway = new CFrame(-sway.X * 1.75, sway.Y / 1.5, -sway.X * 1.5)
@@ -124,9 +124,10 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     }
     {
       const movement = this.animations.landing.update(dt, this.fps).div(32);
+      const multiplier = this.fps.state.aimed ? 0.75 : 1;
       modelOffsets.push(
-        new CFrame(0, -movement.Y * (this.fps.state.aimed ? 0.75 : 2), 0)
-          .mul(CFrame.Angles(movement.Y * (this.fps.state.aimed ? 1 : 3), 0, 0))
+        new CFrame(0, -movement.Y * multiplier, 0)
+          .mul(CFrame.Angles(movement.Y * multiplier, 0, 0))
       );
     }
     // {
@@ -137,10 +138,10 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     //   );
     // }
     {
-      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera);
+      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 2.5 : 1);
       modelOffsets.push(
-        new CFrame(0, -recoil.X * 5, recoil.Z * 10)
-          .mul(CFrame.Angles(recoil.X * 2.5, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+        new CFrame(0, -recoil.X * 5, recoil.Z * 25)
+          .mul(CFrame.Angles(recoil.X * 6, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
       );
     }
 
