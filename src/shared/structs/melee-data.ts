@@ -1,13 +1,13 @@
 export default interface MeleeData {
-  damage: [number, number];
-  range: [number, number];
-  attackSpeed: number;
+  readonly damage: readonly [number, number];
+  readonly range: readonly [number, number];
+  readonly attackSpeed: number;
 
-  speed: {
-    equip: number;
-    movement: {
-      walk: number;
-      sprint: number;
+  readonly speed: {
+    readonly equip: number;
+    readonly movement: {
+      readonly walk: number;
+      readonly sprint: number;
     };
   };
 }

@@ -109,8 +109,8 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     {
       const movement = this.animations.walkCycle.update(dt, this.fps).mul(16);
       modelOffsets.push(
-        new CFrame(movement.X * 1.5, movement.Y * 2, 0)
-          .mul(CFrame.Angles(movement.Y, movement.X / 5, movement.Z))
+        new CFrame(movement.X * 2, movement.Y * 2, 0)
+          .mul(CFrame.Angles(movement.Y * 1.5, movement.X / 8, movement.Z))
       );
     }
     {
@@ -133,15 +133,15 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     // {
     //   const { X: crouch } = this.animations.crouch.update(dt);
     //   modelOffsets.push(
-    //     new CFrame(0, 0, this.animations.crouch.crouchZOffset)
-    //       .mul(CFrame.Angles(0, 0, rad(crouch * this.animations.crouch.crouchAngle)))
+    //     new CFrame(0, 0, this.animations.crouch.crouchModelZOffset)
+    //       .mul(CFrame.Angles(0, 0, rad(crouch * this.animations.crouch.crouchModelAngle)))
     //   );
     // }
     {
-      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 2.5 : 1);
+      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 1.5 : 1);
       modelOffsets.push(
-        new CFrame(0, -recoil.X * 5, recoil.Z * 25)
-          .mul(CFrame.Angles(recoil.X * 6, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+        new CFrame(0, -recoil.X * 5, recoil.Z * (this.fps.state.aimed ? 14 : 26))
+          .mul(CFrame.Angles(recoil.X * 5, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
       );
     }
 

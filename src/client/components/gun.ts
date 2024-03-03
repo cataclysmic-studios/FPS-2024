@@ -11,6 +11,8 @@ export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
   public readonly aimSound = Assets.CommonAudio.Aim.Clone();
   public readonly unaimSound = Assets.CommonAudio.Unaim.Clone();
 
+  private readonly muzzle = this.instance.Handle.Muzzle;
+
   public onStart(): void {
     this.weld();
     this.instance.Handle.Equip.Play();
@@ -21,6 +23,11 @@ export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
 
   public shoot(): void {
     this.instance.Handle.Fire.Play();
+
+    this.muzzle.Light.Enabled = true;
+    task.delay(0.06, () => this.muzzle.Light.Enabled = false);
+    for (const particle of this.muzzle.GetChildren().filter((child): child is ParticleEmitter => child.IsA("ParticleEmitter")))
+      particle.Emit(1);
   }
 
   public getAnimation(name: AnimationName): Animation {

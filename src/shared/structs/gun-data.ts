@@ -1,6 +1,6 @@
 import type Firemode from "./enums/firemode";
 
-type RecoilPattern = [[number, number], [number, number], [number, number]];
+type RecoilPattern = readonly [[number, number], [number, number], [number, number]];
 interface RecoilSpringModifiers {
   readonly cameraRecoverSpeed: number;
   readonly cameraKickForceDamper: number;
@@ -12,31 +12,45 @@ interface RecoilSpringModifiers {
   readonly modelKickSpeed: number;
 }
 
+type GunClass =
+  | "Assault Rifle"
+  | "Carbine"
+  | "Shotgun"
+  | "SMG"
+  | "LMG"
+  | "Marksman Rifle"
+  | "Sniper Rifle"
+  | "Pistol"
+  | "Machine Pistol"
+  | "Revolver";
+
 export default interface GunData {
-  damage: [number, number];
-  range: [number, number];
-  firerate: number;
-  firemodes: Firemode[];
-  burstCount?: number;
-  ammo: {
-    mag: number;
-    spare: number;
+  readonly class: GunClass;
+
+  readonly damage: readonly [number, number];
+  readonly range: readonly [number, number];
+  readonly firerate: number;
+  readonly firemodes: readonly Firemode[];
+  readonly burstCount?: number;
+  readonly ammo: {
+    readonly mag: number;
+    readonly spare: number;
   };
 
-  aimedStabilization: number;
-  recoil: RecoilPattern;
-  recoilSpringModifiers: RecoilSpringModifiers
+  readonly aimedStabilization: number;
+  readonly recoil: RecoilPattern;
+  readonly recoilSpringModifiers: RecoilSpringModifiers
 
-  movingParts: string[];
+  readonly movingParts: string[];
 
-  zoom: number;
-  speed: {
-    aim: number;
-    equip: number;
-    movement: {
-      aim: number;
-      walk: number;
-      sprint: number;
+  readonly zoom: number;
+  readonly speed: {
+    readonly aim: number;
+    readonly equip: number;
+    readonly movement: {
+      readonly aim: number;
+      readonly walk: number;
+      readonly sprint: number;
     };
   };
 }

@@ -30,7 +30,7 @@ export default class WalkCycleAnimation implements ProceduralAnimation {
     const y = walkSpeed === 0 ? 0 : this.cosineWave.update(1, waveDamping);
     const force = new Vector3(x * (aimed ? 1 : 3), y, x)
       .div(aimed ? 5 : 1)
-      .mul(sprinting ? 2 : 1);
+      .mul(sprinting ? 1.5 : 1);
 
     this.spring.shove(force);
     return this.spring.update(dt);
