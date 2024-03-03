@@ -94,10 +94,11 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       cameraOffsets.push(new CFrame(0, prone * this.animations.prone.headHeight, 0));
     }
     {
-      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 3.5 : 1.5);
+      const damp = this.fps.state.aimed ? 3.5 : 2.5;
+      const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(damp);
       cameraOffsets.push(
-        new CFrame(0, 0, recoil.Z * 3)
-          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 5 : 1)))
+        new CFrame(0, 0, recoil.Z * (-2 * (damp * 4.5)))
+          .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 6 : 1)))
       );
     }
 
@@ -140,7 +141,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
     {
       const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 1.5 : 1);
       modelOffsets.push(
-        new CFrame(0, -recoil.X * 5, recoil.Z * (this.fps.state.aimed ? 14 : 26))
+        new CFrame(0, -recoil.X * 5, recoil.Z * (this.fps.state.aimed ? 17 : 32))
           .mul(CFrame.Angles(recoil.X * 5, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 1.5 : 1)))
       );
     }
