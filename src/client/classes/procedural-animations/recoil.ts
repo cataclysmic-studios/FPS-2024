@@ -7,10 +7,10 @@ import type ProceduralAnimation from "../procedural-animation";
 const RECOVER_TIME = 0.08;
 const TORQUE_RECOVER_TIME = 0.04;
 const SPRING_DEFAULTS = {
-  camera: [20, 30, 4, 6],
+  camera: [100, 3, 1, 24],
   model: [30, 120, 3, 3],
-  cameraTorque: [15, 90, 4, 6.5],
-  modelTorque: [25, 60, 4, 5.5]
+  cameraTorque: [15, 90, 4, 10],
+  modelTorque: [25, 60, 4, 8]
 };
 
 export default class RecoilAnimation implements ProceduralAnimation {

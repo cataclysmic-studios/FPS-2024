@@ -141,7 +141,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(this.fps.state.aimed ? 1.5 : 1);
       modelOffsets.push(
         new CFrame(0, -recoil.X * 5, recoil.Z * (this.fps.state.aimed ? 14 : 26))
-          .mul(CFrame.Angles(recoil.X * 5, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier))
+          .mul(CFrame.Angles(recoil.X * 5, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 1.5 : 1)))
       );
     }
 
