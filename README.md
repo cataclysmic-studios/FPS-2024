@@ -1,16 +1,6 @@
-# My Flamework Template
+# FPS 2024
 
-This is my own pre-configured template you can use for your Roblox TypeScript projects that use [Flamework](https://fireboltofdeath.dev/docs/flamework/).  
-It includes a few extra utilities.
+My 2024 attempt for a realistic Roblox FPS game.
 
-## Usage
-
-First, create the folder on your computer where you want your project to be stored.
-Then, open a terminal at that directory and run the following commands:
-
-```console
-npx degit R-unic/flamework-template
-npm i
-```
-
-That's it! The template has been installed. For further information on how to use Flamework in your project, please see [here](https://fireboltofdeath.dev/docs/flamework).
+# Contact me
+- [My Discord server](https://discord.gg/Tzh44WeAWW)
