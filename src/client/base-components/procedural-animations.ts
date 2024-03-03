@@ -1,7 +1,6 @@
 import { BaseComponent } from "@flamework/components";
 import Object from "@rbxts/object-utils";
 
-import { flattenNumber } from "shared/utilities/helpers";
 import BreathingAnimation from "client/classes/procedural-animations/breathing";
 import WalkCycleAnimation from "client/classes/procedural-animations/walk-cycle";
 import MouseSwayAnimation from "client/classes/procedural-animations/mouse-sway";
@@ -97,7 +96,7 @@ export class ProceduralAnimations<A = {}, I extends Camera | Model = Camera | Mo
       const damp = this.fps.state.aimed ? 3.5 : 2.5;
       const recoil = this.animations.recoil.update(dt, this.fps, this.connectedToCamera).div(damp);
       cameraOffsets.push(
-        new CFrame(0, 0, recoil.Z * (-2 * (damp * 4.5)))
+        new CFrame(0, 0, recoil.Z * (-2 * (damp * 5)))
           .mul(CFrame.Angles(recoil.X, recoil.Y, recoil.Y * this.animations.recoil.shakeMultiplier * (this.fps.state.aimed ? 6 : 1)))
       );
     }
