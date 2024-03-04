@@ -23,7 +23,7 @@ export interface FpsState {
   readonly guns: GunsInventory;
   readonly weaponData: WeaponData;
   readonly gun: {
-    firemode: Firemode,
+    firemodeIndex: number,
     ammo: {
       mag: number;
       spare: number;
@@ -31,7 +31,7 @@ export interface FpsState {
   };
 }
 
-export const DEFAULT_FPS_STATE = {
+export const DEFAULT_FPS_STATE: FpsState = {
   equipped: false,
   aimed: false,
   crouched: false,
@@ -43,11 +43,11 @@ export const DEFAULT_FPS_STATE = {
   leanState: <LeanState>0,
 
   currentSlot: undefined,
-  knife: undefined,
+  melee: undefined,
   guns: <GunsInventory>[undefined, undefined],
   weaponData: <WeaponData>[undefined, undefined, undefined],
   gun: {
-    firemode: Firemode.Auto,
+    firemodeIndex: 0,
     ammo: {
       mag: 0,
       spare: 0

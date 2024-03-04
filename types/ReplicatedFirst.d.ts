@@ -14,6 +14,8 @@ interface ReplicatedFirst extends Instance {
     CommonAudio: Folder & {
       Aim: Sound;
       Unaim: Sound;
+      SwitchFiremode: Sound;
+      Empty: Sound;
     }
   };
 }

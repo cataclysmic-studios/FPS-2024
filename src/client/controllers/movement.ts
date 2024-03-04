@@ -75,6 +75,8 @@ export class MovementController {
   public sprint(): void {
     if (this.fps.state.aimed)
       this.fps.aim(false);
+    if (this.fps.state.leanState !== 0)
+      this.lean(0);
 
     this.stand();
     this.fps.state.sprinting = true;

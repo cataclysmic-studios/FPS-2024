@@ -43,12 +43,12 @@ const DEFAULT_CHARACTER: CharacterCreationOptions = {
 @Controller({ loadOrder: 0 })
 export class FpsController implements OnInit {
   public readonly state: FpsState = DEFAULT_FPS_STATE;
-  public readonly aimed = new Signal<(aimed: boolean) => void>;
+  public readonly ammoChanged = new Signal<(newAmmo: { mag: number; spare: number; }) => void>;
+  public readonly firemodeChanged = new Signal<(newFiremode: Firemode) => void>;
   public vm?: ViewModel;
   public characterCamera?: CharacterCamera;
 
   private mouseDown = false;
-  private currentFiremodes: [Maybe<Firemode>, Maybe<Firemode>] = [undefined, undefined];
 
   public constructor(
     private readonly components: Components,
@@ -76,10 +76,14 @@ export class FpsController implements OnInit {
     const firemode = this.getCurrentFiremode();
     if (!data) return;
     if (firemode === undefined) return;
+    if (!this.vm?.currentGun) return;
+
+    if (this.state.gun.ammo.mag < 1)
+      return this.playGunSound("Empty");
 
     switch(firemode) {
       case Firemode.Auto: {
-        while (this.mouseDown)
+        while (this.canShoot())
           this.fireShot(data);
         break;
       }
@@ -87,7 +91,7 @@ export class FpsController implements OnInit {
         const burstCount = data.burstCount ?? 3;
         let shots = 0;
         do {
-          if (!this.mouseDown) break;
+          if (!this.canShoot()) break;
           this.fireShot(data);
           shots += 1;
         } while (shots < burstCount)
@@ -99,23 +103,32 @@ export class FpsController implements OnInit {
     }
   }
 
+  private canShoot(): boolean {
+    return !this.state.shooting && this.mouseDown && this.state.gun.ammo.mag > 0;
+  }
+
   private fireShot({ firerate }: GunData): void {
+    if (!this.canShoot()) return;
     this.state.shooting = true;
+
     this.applyRecoil();
     this.vm!.currentGun!.shoot();
+    this.state.gun.ammo.mag -= 1;
+    this.ammoChanged.Fire(this.state.gun.ammo);
+
     task.wait(60 / firerate);
     this.state.shooting = false;
   }
 
   public aim(aimed: boolean): void {
     if (!this.characterCamera) return;
-    if (!this.vm?.currentGun) return;
     if (this.state.sprinting) return;
     this.state.aimed = aimed;
 
     const gunData = this.getData<GunData>()!;
     AIM_TWEEN_INFO.SetTime(0.2 / gunData.speed.aim);
 
+    this.playGunSound(aimed ? "Aim" : "Unaim");
     this.adjustCharacterSpeed();
     tween(UserInputService, AIM_TWEEN_INFO, { // TODO: add setting in future to modify this aim sensitivity
       MouseDeltaSensitivity: 1 / (aimed ? gunData.zoom : 1)
@@ -124,17 +137,40 @@ export class FpsController implements OnInit {
       FieldOfView: FOV.Base / (aimed ? gunData.zoom : 1)
     });
 
-    const aimOffset = this.vm.currentGun.instance.Offsets.Aim.Value.mul(this.vm.currentGun.instance.Offsets.Main.Value.Inverse());
+    const aimOffset = this.vm!.currentGun!.instance.Offsets.Aim.Value
+      .mul(this.vm!.currentGun!.instance.Offsets.Main.Value.Inverse());
+
     this.tweenCFrameManipulator(
       "aim", CFrameManipulationType.ViewModel,
       AIM_TWEEN_INFO,
       aimed ? aimOffset : new CFrame
     );
+  }
 
-    if (aimed)
-      this.vm.currentGun.aimSound.Play();
-    else
-      this.vm.currentGun.unaimSound.Play();
+  public reload(): void {
+    const gunData = this.getData<GunData>();
+    if (!gunData) return;
+    if (!this.vm) return;
+
+    // this.vm.playAnimation("Reload"); // TODO: when finished add new ammo, also add cancelling
+    const leftover = this.state.gun.ammo.mag;
+    const chamber = leftover > 0 ? 1 : 0;
+    const newAmmo = gunData.ammo.mag + chamber;
+    this.state.gun.ammo.mag = newAmmo;
+    this.state.gun.ammo.spare -= newAmmo - leftover;
+    this.ammoChanged.Fire(this.state.gun.ammo);
+  }
+
+  public switchFiremode(): void {
+    const gunData = this.getData<GunData>();
+    if (!gunData) return;
+    if (!this.vm) return;
+
+    // this.vm.playAnimation("SwitchFiremode");
+    this.state.gun.firemodeIndex += 1;
+    this.state.gun.firemodeIndex %= gunData.firemodes.size();
+    this.firemodeChanged.Fire(this.getCurrentFiremode()!);
+    this.playGunSound("SwitchFiremode");
   }
 
   public adjustCharacterSpeed() {
@@ -167,6 +203,8 @@ export class FpsController implements OnInit {
     this.vm.playAnimation("Idle"); // temp
     this.loadGun(slot, gun);
     this.adjustCharacterSpeed();
+    this.firemodeChanged.Fire(this.getCurrentFiremode()!);
+    this.ammoChanged.Fire(gun.getData().ammo);
   }
 
   public unequip(): void {
@@ -177,8 +215,6 @@ export class FpsController implements OnInit {
     // this.vm.playAnimation("Unequip", data.speed.equip);
 
     this.state.currentSlot = undefined;
-    if (currentSlot !== Slot.Melee)
-      this.currentFiremodes[currentSlot] = undefined;
   }
 
   public setGun(slot: Slot.Primary | Slot.Secondary, gunName: ExtractKeys<typeof Assets.Guns, GunModel>): void {
@@ -192,6 +228,12 @@ export class FpsController implements OnInit {
   public getData<T extends GunData | MeleeData = GunData | MeleeData>(): Maybe<T> {
     if (this.state.currentSlot === undefined) return;
     return <T>this.state.weaponData[this.state.currentSlot];
+  }
+
+  private playGunSound(name: ExtractKeys<GunModel["Handle"], Sound> | & keyof Gun["sounds"]): void {
+    if (!this.vm?.currentGun) return;
+    const sound = <Sound>this.vm.currentGun.instance.Handle.FindFirstChild(name) ?? this.vm.currentGun.sounds[<keyof Gun["sounds"]>name];
+    sound.Play();
   }
 
   private applyRecoil(): void {
@@ -242,13 +284,17 @@ export class FpsController implements OnInit {
   private loadGun(slot: Slot.Primary | Slot.Secondary, gun: Gun): GunData {
     const data = gun.getData();
     this.state.weaponData[slot] = data;
-    this.currentFiremodes[slot] = this.currentFiremodes[slot] ?? data.firemodes[0];
+    this.state.gun.ammo.mag = data.ammo.mag;
+    this.state.gun.ammo.spare = data.ammo.spare;
     return data;
   }
 
   private getCurrentFiremode(): Maybe<Firemode> {
     if (this.state.currentSlot === undefined) return;
     if (this.state.currentSlot === Slot.Melee) return;
-    return this.currentFiremodes[this.state.currentSlot];
+
+    const gunData = this.getData<GunData>();
+    if (!gunData) return;
+    return gunData.firemodes[this.state.gun.firemodeIndex];
   }
 }

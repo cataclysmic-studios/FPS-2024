@@ -1,7 +1,7 @@
 interface PlayerGui extends BasePlayerGui {
   HUD: ScreenGui & {
     Ammo: Frame & {
-      Reserve: TextLabel;
+      Spare: TextLabel;
       UIPadding: UIPadding;
       Firemode: TextLabel;
       Mag: TextLabel;

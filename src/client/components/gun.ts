@@ -4,21 +4,27 @@ import { Janitor } from "@rbxts/janitor";
 
 import type GunData from "shared/structs/gun-data";
 import { Assets } from "shared/utilities/helpers";
+import Object from "@rbxts/object-utils";
 
 @Component({ tag: "Gun" })
 export class Gun extends BaseComponent<{}, GunModel> implements OnStart {
   public readonly janitor = new Janitor;
-  public readonly aimSound = Assets.CommonAudio.Aim.Clone();
-  public readonly unaimSound = Assets.CommonAudio.Unaim.Clone();
+  public readonly sounds = {
+    Aim: Assets.CommonAudio.Aim.Clone(),
+    Unaim: Assets.CommonAudio.Unaim.Clone(),
+    Empty: Assets.CommonAudio.Empty.Clone(),
+    SwitchFiremode: Assets.CommonAudio.SwitchFiremode.Clone()
+  };
 
   private readonly muzzle = this.instance.Handle.Muzzle;
 
   public onStart(): void {
     this.weld();
     this.instance.Handle.Equip.Play();
-    this.aimSound.Parent = this.instance.Handle;
-    this.unaimSound.Parent = this.instance.Handle;
     this.janitor.Add(this.instance);
+
+    for (const sound of Object.values(this.sounds))
+      sound.Parent = this.instance.Handle;
   }
 
   public shoot(): void {

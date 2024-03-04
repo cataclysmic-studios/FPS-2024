@@ -52,6 +52,11 @@ export class InputController implements OnInit {
           else
             return this.movement.prone();
 
+        case Key.B:
+          return this.fps.switchFiremode();
+        case Key.R:
+          return this.fps.reload();
+
         case Key.P:
           return UserInputService.MouseIconEnabled = !UserInputService.MouseIconEnabled;
       }
