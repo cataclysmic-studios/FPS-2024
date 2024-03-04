@@ -1,21 +1,46 @@
-import { Controller } from "@flamework/core";
+import { Controller, type OnRender } from "@flamework/core";
+import { TweenInfoBuilder } from "@rbxts/builders";
 import Signal from "@rbxts/signal";
 
+import { tween } from "shared/utilities/ui";
 import type { FpsState, LeanState } from "shared/structs/fps-state";
 
 import type { FpsController } from "./fps";
 import { Character } from "shared/utilities/client";
 
 @Controller()
-export class MovementController {
+export class MovementController implements OnRender {
   public readonly leanStateChanged = new Signal<(newState: LeanState) => void>;
   public readonly crouched = new Signal;
   public readonly proned = new Signal;
   public readonly stood = new Signal;
 
+  private slideDebounce = false;
+  private readonly slideCooldown = 1;
+  private readonly slideForce = 14;
+  private readonly slideT = new Instance("NumberValue");
+  private readonly slideInInfo = new TweenInfoBuilder()
+    .SetTime(0.15)
+    .SetEasingStyle(Enum.EasingStyle.Quint)
+    .SetEasingDirection(Enum.EasingDirection.Out)
+  private readonly slideOutInfo = new TweenInfoBuilder()
+    .SetTime(1.25)
+    .SetEasingStyle(Enum.EasingStyle.Quint)
+    .SetEasingDirection(Enum.EasingDirection.Out)
+
   public constructor(
     private readonly fps: FpsController
   ) {}
+
+  public onRender(dt: number): void {
+    const root = Character.PrimaryPart;
+    if (!root) return;
+    if (this.slideT.Value === 0) return;
+
+    const velocity = root.AssemblyLinearVelocity;
+    root.AssemblyLinearVelocity = velocity
+      .add(root.CFrame.LookVector.mul(this.slideT.Value * this.slideForce));
+  }
 
   public is(stateKey: keyof Pick<FpsState, "crouched" | "proned" | "sprinting">): boolean {
     return this.fps.state[stateKey];
@@ -31,20 +56,14 @@ export class MovementController {
   }
 
   public slide(): void {
+    if (this.slideDebounce) return;
+    this.slideDebounce = true;
+
     this.crouch();
+    tween(this.slideT, this.slideInInfo, { Value: 1 })
+      .Completed.Once(() => tween(this.slideT, this.slideOutInfo, { Value: 0 }));
 
-    const root = Character.PrimaryPart!;
-    const baseForce = 50;
-    const loops = 16;
-    const baseTime = 0.15;
-    const smoothness = 2;
-    for (let i = 1; i <= loops; i++) {
-      root.AssemblyLinearVelocity = root.AssemblyLinearVelocity
-        .add(root.CFrame.UpVector.mul(-1 / i))
-        .add(root.CFrame.LookVector.mul(baseForce / (i / smoothness)));
-
-      task.wait(baseTime / i);
-    }
+    task.delay(this.slideCooldown, () => this.slideDebounce = false);
   }
 
   public crouch(): void {

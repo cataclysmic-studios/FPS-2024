@@ -103,23 +103,6 @@ export class FpsController implements OnInit {
     }
   }
 
-  private canShoot(): boolean {
-    return !this.state.shooting && this.mouseDown && this.state.gun.ammo.mag > 0;
-  }
-
-  private fireShot({ firerate }: GunData): void {
-    if (!this.canShoot()) return;
-    this.state.shooting = true;
-
-    this.applyRecoil();
-    this.vm!.currentGun!.shoot();
-    this.state.gun.ammo.mag -= 1;
-    this.ammoChanged.Fire(this.state.gun.ammo);
-
-    task.wait(60 / firerate);
-    this.state.shooting = false;
-  }
-
   public aim(aimed: boolean): void {
     if (!this.characterCamera) return;
     if (this.state.sprinting) return;
@@ -228,6 +211,23 @@ export class FpsController implements OnInit {
   public getData<T extends GunData | MeleeData = GunData | MeleeData>(): Maybe<T> {
     if (this.state.currentSlot === undefined) return;
     return <T>this.state.weaponData[this.state.currentSlot];
+  }
+
+  private canShoot(): boolean {
+    return !this.state.shooting && this.mouseDown && this.state.gun.ammo.mag > 0;
+  }
+
+  private fireShot({ firerate }: GunData): void {
+    if (!this.canShoot()) return;
+    this.state.shooting = true;
+
+    this.applyRecoil();
+    this.vm!.currentGun!.shoot();
+    this.state.gun.ammo.mag -= 1;
+    this.ammoChanged.Fire(this.state.gun.ammo);
+
+    task.wait(60 / firerate);
+    this.state.shooting = false;
   }
 
   private playGunSound(name: ExtractKeys<GunModel["Handle"], Sound> | & keyof Gun["sounds"]): void {
